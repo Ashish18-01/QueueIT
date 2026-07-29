@@ -1,0 +1,2388 @@
+openapi: 3.1.0
+info:
+  title: QueueIt REST API
+  version: 1.0.0
+  summary: Phase 4 implementation contract for QueueIt.
+servers:
+  - url: https://api.queueit.example.com/api/v1
+  - url: http://localhost:3000/api/v1
+security:
+  - bearerAuth: []
+tags:
+  - name: Organization
+  - name: Branch
+  - name: Venue
+  - name: Counter
+  - name: QueueTemplate
+  - name: Queue
+  - name: QueueEntry
+  - name: Customer
+  - name: Employee
+  - name: User
+  - name: Role
+  - name: Permission
+  - name: Session
+  - name: RefreshToken
+  - name: Notification
+  - name: Feedback
+  - name: AnalyticsSnapshot
+  - name: AuditLog
+  - name: FeatureFlag
+  - name: SystemSetting
+  - name: Auth
+paths:
+  /auth/register:
+    post:
+      tags: [Auth]
+      summary: Register
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+        "204": { description: No content }
+        "400": { $ref: "#/components/responses/Error" }
+  /auth/login:
+    post:
+      tags: [Auth]
+      summary: Login
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+        "204": { description: No content }
+        "400": { $ref: "#/components/responses/Error" }
+  /auth/logout:
+    post:
+      tags: [Auth]
+      summary: Logout
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+        "204": { description: No content }
+        "400": { $ref: "#/components/responses/Error" }
+  /auth/refresh:
+    post:
+      tags: [Auth]
+      summary: Refresh token
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+        "204": { description: No content }
+        "400": { $ref: "#/components/responses/Error" }
+  /auth/forgot-password:
+    post:
+      tags: [Auth]
+      summary: Forgot password
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+        "204": { description: No content }
+        "400": { $ref: "#/components/responses/Error" }
+  /auth/reset-password:
+    post:
+      tags: [Auth]
+      summary: Reset password
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+        "204": { description: No content }
+        "400": { $ref: "#/components/responses/Error" }
+  /auth/email/verify:
+    post:
+      tags: [Auth]
+      summary: Verify email
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+        "204": { description: No content }
+        "400": { $ref: "#/components/responses/Error" }
+  /auth/email/resend:
+    post:
+      tags: [Auth]
+      summary: Resend verification
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+        "204": { description: No content }
+        "400": { $ref: "#/components/responses/Error" }
+  /auth/password/change:
+    post:
+      tags: [Auth]
+      summary: Change password
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+        "204": { description: No content }
+        "400": { $ref: "#/components/responses/Error" }
+  /auth/google:
+    get:
+      tags: [Auth]
+      summary: Start Google auth
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+        "204": { description: No content }
+        "400": { $ref: "#/components/responses/Error" }
+  /auth/google/callback:
+    get:
+      tags: [Auth]
+      summary: Google callback
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+        "204": { description: No content }
+        "400": { $ref: "#/components/responses/Error" }
+  /auth/sessions:
+    get:
+      tags: [Auth]
+      summary: List sessions
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+        "204": { description: No content }
+        "400": { $ref: "#/components/responses/Error" }
+  /auth/tokens/revoke:
+    post:
+      tags: [Auth]
+      summary: Revoke token
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+        "204": { description: No content }
+        "400": { $ref: "#/components/responses/Error" }
+  /organizations:
+    get:
+      tags: [Organization]
+      summary: List organizations
+      parameters:
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Cursor"
+        - $ref: "#/components/parameters/Sort"
+      responses:
+        "200": { $ref: "#/components/responses/ListSuccess" }
+    post:
+      tags: [Organization]
+      summary: Create Organization
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody: { $ref: "#/components/requestBodies/GenericResource" }
+      responses:
+        "201": { $ref: "#/components/responses/Success" }
+        "422": { $ref: "#/components/responses/Error" }
+  /organizations/search:
+    get:
+      tags: [Organization]
+      summary: Search organizations
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema: { type: string, minLength: 1 }
+      responses:
+        "200": { $ref: "#/components/responses/ListSuccess" }
+  /organizations/bulk:
+    post:
+      tags: [Organization]
+      summary: Bulk create or update organizations
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody: { $ref: "#/components/requestBodies/Bulk" }
+      responses:
+        "202": { $ref: "#/components/responses/Success" }
+  /organizations/{organizationId}:
+    get:
+      tags: [Organization]
+      summary: Get Organization by ID
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+        "404": { $ref: "#/components/responses/Error" }
+    put:
+      tags: [Organization]
+      summary: Replace Organization
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+        - $ref: "#/components/parameters/IfMatch"
+      requestBody: { $ref: "#/components/requestBodies/GenericResource" }
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+    patch:
+      tags: [Organization]
+      summary: Patch Organization
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+        - $ref: "#/components/parameters/IfMatch"
+      requestBody: { $ref: "#/components/requestBodies/GenericResource" }
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+    delete:
+      tags: [Organization]
+      summary: Soft delete Organization
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+      responses:
+        "204": { description: No content }
+  /organizations/{organizationId}/archive:
+    post:
+      tags: [Organization]
+      summary: Archive Organization
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /organizations/{organizationId}/restore:
+    post:
+      tags: [Organization]
+      summary: Restore Organization
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /organizations/{organizationId}/history:
+    get:
+      tags: [Organization]
+      summary: History Organization
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /organizations/{organizationId}/statistics:
+    get:
+      tags: [Organization]
+      summary: Statistics Organization
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /branches:
+    get:
+      tags: [Branch]
+      summary: List branches
+      parameters:
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Cursor"
+        - $ref: "#/components/parameters/Sort"
+      responses:
+        "200": { $ref: "#/components/responses/ListSuccess" }
+    post:
+      tags: [Branch]
+      summary: Create Branch
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody: { $ref: "#/components/requestBodies/GenericResource" }
+      responses:
+        "201": { $ref: "#/components/responses/Success" }
+        "422": { $ref: "#/components/responses/Error" }
+  /branches/search:
+    get:
+      tags: [Branch]
+      summary: Search branches
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema: { type: string, minLength: 1 }
+      responses:
+        "200": { $ref: "#/components/responses/ListSuccess" }
+  /branches/bulk:
+    post:
+      tags: [Branch]
+      summary: Bulk create or update branches
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody: { $ref: "#/components/requestBodies/Bulk" }
+      responses:
+        "202": { $ref: "#/components/responses/Success" }
+  /branches/{branchId}:
+    get:
+      tags: [Branch]
+      summary: Get Branch by ID
+      parameters:
+        - $ref: "#/components/parameters/branchId"
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+        "404": { $ref: "#/components/responses/Error" }
+    put:
+      tags: [Branch]
+      summary: Replace Branch
+      parameters:
+        - $ref: "#/components/parameters/branchId"
+        - $ref: "#/components/parameters/IfMatch"
+      requestBody: { $ref: "#/components/requestBodies/GenericResource" }
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+    patch:
+      tags: [Branch]
+      summary: Patch Branch
+      parameters:
+        - $ref: "#/components/parameters/branchId"
+        - $ref: "#/components/parameters/IfMatch"
+      requestBody: { $ref: "#/components/requestBodies/GenericResource" }
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+    delete:
+      tags: [Branch]
+      summary: Soft delete Branch
+      parameters:
+        - $ref: "#/components/parameters/branchId"
+      responses:
+        "204": { description: No content }
+  /branches/{branchId}/archive:
+    post:
+      tags: [Branch]
+      summary: Archive Branch
+      parameters:
+        - $ref: "#/components/parameters/branchId"
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /branches/{branchId}/restore:
+    post:
+      tags: [Branch]
+      summary: Restore Branch
+      parameters:
+        - $ref: "#/components/parameters/branchId"
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /branches/{branchId}/history:
+    get:
+      tags: [Branch]
+      summary: History Branch
+      parameters:
+        - $ref: "#/components/parameters/branchId"
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /branches/{branchId}/statistics:
+    get:
+      tags: [Branch]
+      summary: Statistics Branch
+      parameters:
+        - $ref: "#/components/parameters/branchId"
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /venues:
+    get:
+      tags: [Venue]
+      summary: List venues
+      parameters:
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Cursor"
+        - $ref: "#/components/parameters/Sort"
+      responses:
+        "200": { $ref: "#/components/responses/ListSuccess" }
+    post:
+      tags: [Venue]
+      summary: Create Venue
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody: { $ref: "#/components/requestBodies/GenericResource" }
+      responses:
+        "201": { $ref: "#/components/responses/Success" }
+        "422": { $ref: "#/components/responses/Error" }
+  /venues/search:
+    get:
+      tags: [Venue]
+      summary: Search venues
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema: { type: string, minLength: 1 }
+      responses:
+        "200": { $ref: "#/components/responses/ListSuccess" }
+  /venues/bulk:
+    post:
+      tags: [Venue]
+      summary: Bulk create or update venues
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody: { $ref: "#/components/requestBodies/Bulk" }
+      responses:
+        "202": { $ref: "#/components/responses/Success" }
+  /venues/{venueId}:
+    get:
+      tags: [Venue]
+      summary: Get Venue by ID
+      parameters:
+        - $ref: "#/components/parameters/venueId"
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+        "404": { $ref: "#/components/responses/Error" }
+    put:
+      tags: [Venue]
+      summary: Replace Venue
+      parameters:
+        - $ref: "#/components/parameters/venueId"
+        - $ref: "#/components/parameters/IfMatch"
+      requestBody: { $ref: "#/components/requestBodies/GenericResource" }
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+    patch:
+      tags: [Venue]
+      summary: Patch Venue
+      parameters:
+        - $ref: "#/components/parameters/venueId"
+        - $ref: "#/components/parameters/IfMatch"
+      requestBody: { $ref: "#/components/requestBodies/GenericResource" }
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+    delete:
+      tags: [Venue]
+      summary: Soft delete Venue
+      parameters:
+        - $ref: "#/components/parameters/venueId"
+      responses:
+        "204": { description: No content }
+  /venues/{venueId}/archive:
+    post:
+      tags: [Venue]
+      summary: Archive Venue
+      parameters:
+        - $ref: "#/components/parameters/venueId"
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /venues/{venueId}/restore:
+    post:
+      tags: [Venue]
+      summary: Restore Venue
+      parameters:
+        - $ref: "#/components/parameters/venueId"
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /venues/{venueId}/history:
+    get:
+      tags: [Venue]
+      summary: History Venue
+      parameters:
+        - $ref: "#/components/parameters/venueId"
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /venues/{venueId}/statistics:
+    get:
+      tags: [Venue]
+      summary: Statistics Venue
+      parameters:
+        - $ref: "#/components/parameters/venueId"
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /counters:
+    get:
+      tags: [Counter]
+      summary: List counters
+      parameters:
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Cursor"
+        - $ref: "#/components/parameters/Sort"
+      responses:
+        "200": { $ref: "#/components/responses/ListSuccess" }
+    post:
+      tags: [Counter]
+      summary: Create Counter
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody: { $ref: "#/components/requestBodies/GenericResource" }
+      responses:
+        "201": { $ref: "#/components/responses/Success" }
+        "422": { $ref: "#/components/responses/Error" }
+  /counters/search:
+    get:
+      tags: [Counter]
+      summary: Search counters
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema: { type: string, minLength: 1 }
+      responses:
+        "200": { $ref: "#/components/responses/ListSuccess" }
+  /counters/bulk:
+    post:
+      tags: [Counter]
+      summary: Bulk create or update counters
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody: { $ref: "#/components/requestBodies/Bulk" }
+      responses:
+        "202": { $ref: "#/components/responses/Success" }
+  /counters/{counterId}:
+    get:
+      tags: [Counter]
+      summary: Get Counter by ID
+      parameters:
+        - $ref: "#/components/parameters/counterId"
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+        "404": { $ref: "#/components/responses/Error" }
+    put:
+      tags: [Counter]
+      summary: Replace Counter
+      parameters:
+        - $ref: "#/components/parameters/counterId"
+        - $ref: "#/components/parameters/IfMatch"
+      requestBody: { $ref: "#/components/requestBodies/GenericResource" }
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+    patch:
+      tags: [Counter]
+      summary: Patch Counter
+      parameters:
+        - $ref: "#/components/parameters/counterId"
+        - $ref: "#/components/parameters/IfMatch"
+      requestBody: { $ref: "#/components/requestBodies/GenericResource" }
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+    delete:
+      tags: [Counter]
+      summary: Soft delete Counter
+      parameters:
+        - $ref: "#/components/parameters/counterId"
+      responses:
+        "204": { description: No content }
+  /counters/{counterId}/archive:
+    post:
+      tags: [Counter]
+      summary: Archive Counter
+      parameters:
+        - $ref: "#/components/parameters/counterId"
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /counters/{counterId}/restore:
+    post:
+      tags: [Counter]
+      summary: Restore Counter
+      parameters:
+        - $ref: "#/components/parameters/counterId"
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /counters/{counterId}/history:
+    get:
+      tags: [Counter]
+      summary: History Counter
+      parameters:
+        - $ref: "#/components/parameters/counterId"
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /counters/{counterId}/statistics:
+    get:
+      tags: [Counter]
+      summary: Statistics Counter
+      parameters:
+        - $ref: "#/components/parameters/counterId"
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /queue-templates:
+    get:
+      tags: [QueueTemplate]
+      summary: List queue-templates
+      parameters:
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Cursor"
+        - $ref: "#/components/parameters/Sort"
+      responses:
+        "200": { $ref: "#/components/responses/ListSuccess" }
+    post:
+      tags: [QueueTemplate]
+      summary: Create QueueTemplate
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody: { $ref: "#/components/requestBodies/GenericResource" }
+      responses:
+        "201": { $ref: "#/components/responses/Success" }
+        "422": { $ref: "#/components/responses/Error" }
+  /queue-templates/search:
+    get:
+      tags: [QueueTemplate]
+      summary: Search queue-templates
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema: { type: string, minLength: 1 }
+      responses:
+        "200": { $ref: "#/components/responses/ListSuccess" }
+  /queue-templates/bulk:
+    post:
+      tags: [QueueTemplate]
+      summary: Bulk create or update queue-templates
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody: { $ref: "#/components/requestBodies/Bulk" }
+      responses:
+        "202": { $ref: "#/components/responses/Success" }
+  /queue-templates/{queueTemplateId}:
+    get:
+      tags: [QueueTemplate]
+      summary: Get QueueTemplate by ID
+      parameters:
+        - $ref: "#/components/parameters/queueTemplateId"
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+        "404": { $ref: "#/components/responses/Error" }
+    put:
+      tags: [QueueTemplate]
+      summary: Replace QueueTemplate
+      parameters:
+        - $ref: "#/components/parameters/queueTemplateId"
+        - $ref: "#/components/parameters/IfMatch"
+      requestBody: { $ref: "#/components/requestBodies/GenericResource" }
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+    patch:
+      tags: [QueueTemplate]
+      summary: Patch QueueTemplate
+      parameters:
+        - $ref: "#/components/parameters/queueTemplateId"
+        - $ref: "#/components/parameters/IfMatch"
+      requestBody: { $ref: "#/components/requestBodies/GenericResource" }
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+    delete:
+      tags: [QueueTemplate]
+      summary: Soft delete QueueTemplate
+      parameters:
+        - $ref: "#/components/parameters/queueTemplateId"
+      responses:
+        "204": { description: No content }
+  /queue-templates/{queueTemplateId}/archive:
+    post:
+      tags: [QueueTemplate]
+      summary: Archive QueueTemplate
+      parameters:
+        - $ref: "#/components/parameters/queueTemplateId"
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /queue-templates/{queueTemplateId}/restore:
+    post:
+      tags: [QueueTemplate]
+      summary: Restore QueueTemplate
+      parameters:
+        - $ref: "#/components/parameters/queueTemplateId"
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /queue-templates/{queueTemplateId}/history:
+    get:
+      tags: [QueueTemplate]
+      summary: History QueueTemplate
+      parameters:
+        - $ref: "#/components/parameters/queueTemplateId"
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /queue-templates/{queueTemplateId}/statistics:
+    get:
+      tags: [QueueTemplate]
+      summary: Statistics QueueTemplate
+      parameters:
+        - $ref: "#/components/parameters/queueTemplateId"
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /queues:
+    get:
+      tags: [Queue]
+      summary: List queues
+      parameters:
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Cursor"
+        - $ref: "#/components/parameters/Sort"
+      responses:
+        "200": { $ref: "#/components/responses/ListSuccess" }
+    post:
+      tags: [Queue]
+      summary: Create Queue
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody: { $ref: "#/components/requestBodies/GenericResource" }
+      responses:
+        "201": { $ref: "#/components/responses/Success" }
+        "422": { $ref: "#/components/responses/Error" }
+  /queues/search:
+    get:
+      tags: [Queue]
+      summary: Search queues
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema: { type: string, minLength: 1 }
+      responses:
+        "200": { $ref: "#/components/responses/ListSuccess" }
+  /queues/bulk:
+    post:
+      tags: [Queue]
+      summary: Bulk create or update queues
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody: { $ref: "#/components/requestBodies/Bulk" }
+      responses:
+        "202": { $ref: "#/components/responses/Success" }
+  /queues/{queueId}:
+    get:
+      tags: [Queue]
+      summary: Get Queue by ID
+      parameters:
+        - $ref: "#/components/parameters/queueId"
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+        "404": { $ref: "#/components/responses/Error" }
+    put:
+      tags: [Queue]
+      summary: Replace Queue
+      parameters:
+        - $ref: "#/components/parameters/queueId"
+        - $ref: "#/components/parameters/IfMatch"
+      requestBody: { $ref: "#/components/requestBodies/GenericResource" }
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+    patch:
+      tags: [Queue]
+      summary: Patch Queue
+      parameters:
+        - $ref: "#/components/parameters/queueId"
+        - $ref: "#/components/parameters/IfMatch"
+      requestBody: { $ref: "#/components/requestBodies/GenericResource" }
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+    delete:
+      tags: [Queue]
+      summary: Soft delete Queue
+      parameters:
+        - $ref: "#/components/parameters/queueId"
+      responses:
+        "204": { description: No content }
+  /queues/{queueId}/archive:
+    post:
+      tags: [Queue]
+      summary: Archive Queue
+      parameters:
+        - $ref: "#/components/parameters/queueId"
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /queues/{queueId}/restore:
+    post:
+      tags: [Queue]
+      summary: Restore Queue
+      parameters:
+        - $ref: "#/components/parameters/queueId"
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /queues/{queueId}/history:
+    get:
+      tags: [Queue]
+      summary: History Queue
+      parameters:
+        - $ref: "#/components/parameters/queueId"
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /queues/{queueId}/statistics:
+    get:
+      tags: [Queue]
+      summary: Statistics Queue
+      parameters:
+        - $ref: "#/components/parameters/queueId"
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /queue-entries:
+    get:
+      tags: [QueueEntry]
+      summary: List queue-entries
+      parameters:
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Cursor"
+        - $ref: "#/components/parameters/Sort"
+      responses:
+        "200": { $ref: "#/components/responses/ListSuccess" }
+    post:
+      tags: [QueueEntry]
+      summary: Create QueueEntry
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody: { $ref: "#/components/requestBodies/GenericResource" }
+      responses:
+        "201": { $ref: "#/components/responses/Success" }
+        "422": { $ref: "#/components/responses/Error" }
+  /queue-entries/search:
+    get:
+      tags: [QueueEntry]
+      summary: Search queue-entries
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema: { type: string, minLength: 1 }
+      responses:
+        "200": { $ref: "#/components/responses/ListSuccess" }
+  /queue-entries/bulk:
+    post:
+      tags: [QueueEntry]
+      summary: Bulk create or update queue-entries
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody: { $ref: "#/components/requestBodies/Bulk" }
+      responses:
+        "202": { $ref: "#/components/responses/Success" }
+  /queue-entries/{queueEntryId}:
+    get:
+      tags: [QueueEntry]
+      summary: Get QueueEntry by ID
+      parameters:
+        - $ref: "#/components/parameters/queueEntryId"
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+        "404": { $ref: "#/components/responses/Error" }
+    put:
+      tags: [QueueEntry]
+      summary: Replace QueueEntry
+      parameters:
+        - $ref: "#/components/parameters/queueEntryId"
+        - $ref: "#/components/parameters/IfMatch"
+      requestBody: { $ref: "#/components/requestBodies/GenericResource" }
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+    patch:
+      tags: [QueueEntry]
+      summary: Patch QueueEntry
+      parameters:
+        - $ref: "#/components/parameters/queueEntryId"
+        - $ref: "#/components/parameters/IfMatch"
+      requestBody: { $ref: "#/components/requestBodies/GenericResource" }
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+    delete:
+      tags: [QueueEntry]
+      summary: Soft delete QueueEntry
+      parameters:
+        - $ref: "#/components/parameters/queueEntryId"
+      responses:
+        "204": { description: No content }
+  /queue-entries/{queueEntryId}/archive:
+    post:
+      tags: [QueueEntry]
+      summary: Archive QueueEntry
+      parameters:
+        - $ref: "#/components/parameters/queueEntryId"
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /queue-entries/{queueEntryId}/restore:
+    post:
+      tags: [QueueEntry]
+      summary: Restore QueueEntry
+      parameters:
+        - $ref: "#/components/parameters/queueEntryId"
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /queue-entries/{queueEntryId}/history:
+    get:
+      tags: [QueueEntry]
+      summary: History QueueEntry
+      parameters:
+        - $ref: "#/components/parameters/queueEntryId"
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /queue-entries/{queueEntryId}/statistics:
+    get:
+      tags: [QueueEntry]
+      summary: Statistics QueueEntry
+      parameters:
+        - $ref: "#/components/parameters/queueEntryId"
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /customers:
+    get:
+      tags: [Customer]
+      summary: List customers
+      parameters:
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Cursor"
+        - $ref: "#/components/parameters/Sort"
+      responses:
+        "200": { $ref: "#/components/responses/ListSuccess" }
+    post:
+      tags: [Customer]
+      summary: Create Customer
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody: { $ref: "#/components/requestBodies/GenericResource" }
+      responses:
+        "201": { $ref: "#/components/responses/Success" }
+        "422": { $ref: "#/components/responses/Error" }
+  /customers/search:
+    get:
+      tags: [Customer]
+      summary: Search customers
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema: { type: string, minLength: 1 }
+      responses:
+        "200": { $ref: "#/components/responses/ListSuccess" }
+  /customers/bulk:
+    post:
+      tags: [Customer]
+      summary: Bulk create or update customers
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody: { $ref: "#/components/requestBodies/Bulk" }
+      responses:
+        "202": { $ref: "#/components/responses/Success" }
+  /customers/{customerId}:
+    get:
+      tags: [Customer]
+      summary: Get Customer by ID
+      parameters:
+        - $ref: "#/components/parameters/customerId"
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+        "404": { $ref: "#/components/responses/Error" }
+    put:
+      tags: [Customer]
+      summary: Replace Customer
+      parameters:
+        - $ref: "#/components/parameters/customerId"
+        - $ref: "#/components/parameters/IfMatch"
+      requestBody: { $ref: "#/components/requestBodies/GenericResource" }
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+    patch:
+      tags: [Customer]
+      summary: Patch Customer
+      parameters:
+        - $ref: "#/components/parameters/customerId"
+        - $ref: "#/components/parameters/IfMatch"
+      requestBody: { $ref: "#/components/requestBodies/GenericResource" }
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+    delete:
+      tags: [Customer]
+      summary: Soft delete Customer
+      parameters:
+        - $ref: "#/components/parameters/customerId"
+      responses:
+        "204": { description: No content }
+  /customers/{customerId}/archive:
+    post:
+      tags: [Customer]
+      summary: Archive Customer
+      parameters:
+        - $ref: "#/components/parameters/customerId"
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /customers/{customerId}/restore:
+    post:
+      tags: [Customer]
+      summary: Restore Customer
+      parameters:
+        - $ref: "#/components/parameters/customerId"
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /customers/{customerId}/history:
+    get:
+      tags: [Customer]
+      summary: History Customer
+      parameters:
+        - $ref: "#/components/parameters/customerId"
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /customers/{customerId}/statistics:
+    get:
+      tags: [Customer]
+      summary: Statistics Customer
+      parameters:
+        - $ref: "#/components/parameters/customerId"
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /employees:
+    get:
+      tags: [Employee]
+      summary: List employees
+      parameters:
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Cursor"
+        - $ref: "#/components/parameters/Sort"
+      responses:
+        "200": { $ref: "#/components/responses/ListSuccess" }
+    post:
+      tags: [Employee]
+      summary: Create Employee
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody: { $ref: "#/components/requestBodies/GenericResource" }
+      responses:
+        "201": { $ref: "#/components/responses/Success" }
+        "422": { $ref: "#/components/responses/Error" }
+  /employees/search:
+    get:
+      tags: [Employee]
+      summary: Search employees
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema: { type: string, minLength: 1 }
+      responses:
+        "200": { $ref: "#/components/responses/ListSuccess" }
+  /employees/bulk:
+    post:
+      tags: [Employee]
+      summary: Bulk create or update employees
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody: { $ref: "#/components/requestBodies/Bulk" }
+      responses:
+        "202": { $ref: "#/components/responses/Success" }
+  /employees/{employeeId}:
+    get:
+      tags: [Employee]
+      summary: Get Employee by ID
+      parameters:
+        - $ref: "#/components/parameters/employeeId"
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+        "404": { $ref: "#/components/responses/Error" }
+    put:
+      tags: [Employee]
+      summary: Replace Employee
+      parameters:
+        - $ref: "#/components/parameters/employeeId"
+        - $ref: "#/components/parameters/IfMatch"
+      requestBody: { $ref: "#/components/requestBodies/GenericResource" }
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+    patch:
+      tags: [Employee]
+      summary: Patch Employee
+      parameters:
+        - $ref: "#/components/parameters/employeeId"
+        - $ref: "#/components/parameters/IfMatch"
+      requestBody: { $ref: "#/components/requestBodies/GenericResource" }
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+    delete:
+      tags: [Employee]
+      summary: Soft delete Employee
+      parameters:
+        - $ref: "#/components/parameters/employeeId"
+      responses:
+        "204": { description: No content }
+  /employees/{employeeId}/archive:
+    post:
+      tags: [Employee]
+      summary: Archive Employee
+      parameters:
+        - $ref: "#/components/parameters/employeeId"
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /employees/{employeeId}/restore:
+    post:
+      tags: [Employee]
+      summary: Restore Employee
+      parameters:
+        - $ref: "#/components/parameters/employeeId"
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /employees/{employeeId}/history:
+    get:
+      tags: [Employee]
+      summary: History Employee
+      parameters:
+        - $ref: "#/components/parameters/employeeId"
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /employees/{employeeId}/statistics:
+    get:
+      tags: [Employee]
+      summary: Statistics Employee
+      parameters:
+        - $ref: "#/components/parameters/employeeId"
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /users:
+    get:
+      tags: [User]
+      summary: List users
+      parameters:
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Cursor"
+        - $ref: "#/components/parameters/Sort"
+      responses:
+        "200": { $ref: "#/components/responses/ListSuccess" }
+    post:
+      tags: [User]
+      summary: Create User
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody: { $ref: "#/components/requestBodies/GenericResource" }
+      responses:
+        "201": { $ref: "#/components/responses/Success" }
+        "422": { $ref: "#/components/responses/Error" }
+  /users/search:
+    get:
+      tags: [User]
+      summary: Search users
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema: { type: string, minLength: 1 }
+      responses:
+        "200": { $ref: "#/components/responses/ListSuccess" }
+  /users/bulk:
+    post:
+      tags: [User]
+      summary: Bulk create or update users
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody: { $ref: "#/components/requestBodies/Bulk" }
+      responses:
+        "202": { $ref: "#/components/responses/Success" }
+  /users/{userId}:
+    get:
+      tags: [User]
+      summary: Get User by ID
+      parameters:
+        - $ref: "#/components/parameters/userId"
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+        "404": { $ref: "#/components/responses/Error" }
+    put:
+      tags: [User]
+      summary: Replace User
+      parameters:
+        - $ref: "#/components/parameters/userId"
+        - $ref: "#/components/parameters/IfMatch"
+      requestBody: { $ref: "#/components/requestBodies/GenericResource" }
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+    patch:
+      tags: [User]
+      summary: Patch User
+      parameters:
+        - $ref: "#/components/parameters/userId"
+        - $ref: "#/components/parameters/IfMatch"
+      requestBody: { $ref: "#/components/requestBodies/GenericResource" }
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+    delete:
+      tags: [User]
+      summary: Soft delete User
+      parameters:
+        - $ref: "#/components/parameters/userId"
+      responses:
+        "204": { description: No content }
+  /users/{userId}/archive:
+    post:
+      tags: [User]
+      summary: Archive User
+      parameters:
+        - $ref: "#/components/parameters/userId"
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /users/{userId}/restore:
+    post:
+      tags: [User]
+      summary: Restore User
+      parameters:
+        - $ref: "#/components/parameters/userId"
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /users/{userId}/history:
+    get:
+      tags: [User]
+      summary: History User
+      parameters:
+        - $ref: "#/components/parameters/userId"
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /users/{userId}/statistics:
+    get:
+      tags: [User]
+      summary: Statistics User
+      parameters:
+        - $ref: "#/components/parameters/userId"
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /roles:
+    get:
+      tags: [Role]
+      summary: List roles
+      parameters:
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Cursor"
+        - $ref: "#/components/parameters/Sort"
+      responses:
+        "200": { $ref: "#/components/responses/ListSuccess" }
+    post:
+      tags: [Role]
+      summary: Create Role
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody: { $ref: "#/components/requestBodies/GenericResource" }
+      responses:
+        "201": { $ref: "#/components/responses/Success" }
+        "422": { $ref: "#/components/responses/Error" }
+  /roles/search:
+    get:
+      tags: [Role]
+      summary: Search roles
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema: { type: string, minLength: 1 }
+      responses:
+        "200": { $ref: "#/components/responses/ListSuccess" }
+  /roles/bulk:
+    post:
+      tags: [Role]
+      summary: Bulk create or update roles
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody: { $ref: "#/components/requestBodies/Bulk" }
+      responses:
+        "202": { $ref: "#/components/responses/Success" }
+  /roles/{roleId}:
+    get:
+      tags: [Role]
+      summary: Get Role by ID
+      parameters:
+        - $ref: "#/components/parameters/roleId"
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+        "404": { $ref: "#/components/responses/Error" }
+    put:
+      tags: [Role]
+      summary: Replace Role
+      parameters:
+        - $ref: "#/components/parameters/roleId"
+        - $ref: "#/components/parameters/IfMatch"
+      requestBody: { $ref: "#/components/requestBodies/GenericResource" }
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+    patch:
+      tags: [Role]
+      summary: Patch Role
+      parameters:
+        - $ref: "#/components/parameters/roleId"
+        - $ref: "#/components/parameters/IfMatch"
+      requestBody: { $ref: "#/components/requestBodies/GenericResource" }
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+    delete:
+      tags: [Role]
+      summary: Soft delete Role
+      parameters:
+        - $ref: "#/components/parameters/roleId"
+      responses:
+        "204": { description: No content }
+  /roles/{roleId}/archive:
+    post:
+      tags: [Role]
+      summary: Archive Role
+      parameters:
+        - $ref: "#/components/parameters/roleId"
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /roles/{roleId}/restore:
+    post:
+      tags: [Role]
+      summary: Restore Role
+      parameters:
+        - $ref: "#/components/parameters/roleId"
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /roles/{roleId}/history:
+    get:
+      tags: [Role]
+      summary: History Role
+      parameters:
+        - $ref: "#/components/parameters/roleId"
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /roles/{roleId}/statistics:
+    get:
+      tags: [Role]
+      summary: Statistics Role
+      parameters:
+        - $ref: "#/components/parameters/roleId"
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /permissions:
+    get:
+      tags: [Permission]
+      summary: List permissions
+      parameters:
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Cursor"
+        - $ref: "#/components/parameters/Sort"
+      responses:
+        "200": { $ref: "#/components/responses/ListSuccess" }
+    post:
+      tags: [Permission]
+      summary: Create Permission
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody: { $ref: "#/components/requestBodies/GenericResource" }
+      responses:
+        "201": { $ref: "#/components/responses/Success" }
+        "422": { $ref: "#/components/responses/Error" }
+  /permissions/search:
+    get:
+      tags: [Permission]
+      summary: Search permissions
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema: { type: string, minLength: 1 }
+      responses:
+        "200": { $ref: "#/components/responses/ListSuccess" }
+  /permissions/bulk:
+    post:
+      tags: [Permission]
+      summary: Bulk create or update permissions
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody: { $ref: "#/components/requestBodies/Bulk" }
+      responses:
+        "202": { $ref: "#/components/responses/Success" }
+  /permissions/{permissionId}:
+    get:
+      tags: [Permission]
+      summary: Get Permission by ID
+      parameters:
+        - $ref: "#/components/parameters/permissionId"
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+        "404": { $ref: "#/components/responses/Error" }
+    put:
+      tags: [Permission]
+      summary: Replace Permission
+      parameters:
+        - $ref: "#/components/parameters/permissionId"
+        - $ref: "#/components/parameters/IfMatch"
+      requestBody: { $ref: "#/components/requestBodies/GenericResource" }
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+    patch:
+      tags: [Permission]
+      summary: Patch Permission
+      parameters:
+        - $ref: "#/components/parameters/permissionId"
+        - $ref: "#/components/parameters/IfMatch"
+      requestBody: { $ref: "#/components/requestBodies/GenericResource" }
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+    delete:
+      tags: [Permission]
+      summary: Soft delete Permission
+      parameters:
+        - $ref: "#/components/parameters/permissionId"
+      responses:
+        "204": { description: No content }
+  /permissions/{permissionId}/archive:
+    post:
+      tags: [Permission]
+      summary: Archive Permission
+      parameters:
+        - $ref: "#/components/parameters/permissionId"
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /permissions/{permissionId}/restore:
+    post:
+      tags: [Permission]
+      summary: Restore Permission
+      parameters:
+        - $ref: "#/components/parameters/permissionId"
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /permissions/{permissionId}/history:
+    get:
+      tags: [Permission]
+      summary: History Permission
+      parameters:
+        - $ref: "#/components/parameters/permissionId"
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /permissions/{permissionId}/statistics:
+    get:
+      tags: [Permission]
+      summary: Statistics Permission
+      parameters:
+        - $ref: "#/components/parameters/permissionId"
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /sessions:
+    get:
+      tags: [Session]
+      summary: List sessions
+      parameters:
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Cursor"
+        - $ref: "#/components/parameters/Sort"
+      responses:
+        "200": { $ref: "#/components/responses/ListSuccess" }
+    post:
+      tags: [Session]
+      summary: Create Session
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody: { $ref: "#/components/requestBodies/GenericResource" }
+      responses:
+        "201": { $ref: "#/components/responses/Success" }
+        "422": { $ref: "#/components/responses/Error" }
+  /sessions/search:
+    get:
+      tags: [Session]
+      summary: Search sessions
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema: { type: string, minLength: 1 }
+      responses:
+        "200": { $ref: "#/components/responses/ListSuccess" }
+  /sessions/bulk:
+    post:
+      tags: [Session]
+      summary: Bulk create or update sessions
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody: { $ref: "#/components/requestBodies/Bulk" }
+      responses:
+        "202": { $ref: "#/components/responses/Success" }
+  /sessions/{sessionId}:
+    get:
+      tags: [Session]
+      summary: Get Session by ID
+      parameters:
+        - $ref: "#/components/parameters/sessionId"
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+        "404": { $ref: "#/components/responses/Error" }
+    put:
+      tags: [Session]
+      summary: Replace Session
+      parameters:
+        - $ref: "#/components/parameters/sessionId"
+        - $ref: "#/components/parameters/IfMatch"
+      requestBody: { $ref: "#/components/requestBodies/GenericResource" }
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+    patch:
+      tags: [Session]
+      summary: Patch Session
+      parameters:
+        - $ref: "#/components/parameters/sessionId"
+        - $ref: "#/components/parameters/IfMatch"
+      requestBody: { $ref: "#/components/requestBodies/GenericResource" }
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+    delete:
+      tags: [Session]
+      summary: Soft delete Session
+      parameters:
+        - $ref: "#/components/parameters/sessionId"
+      responses:
+        "204": { description: No content }
+  /sessions/{sessionId}/archive:
+    post:
+      tags: [Session]
+      summary: Archive Session
+      parameters:
+        - $ref: "#/components/parameters/sessionId"
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /sessions/{sessionId}/restore:
+    post:
+      tags: [Session]
+      summary: Restore Session
+      parameters:
+        - $ref: "#/components/parameters/sessionId"
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /sessions/{sessionId}/history:
+    get:
+      tags: [Session]
+      summary: History Session
+      parameters:
+        - $ref: "#/components/parameters/sessionId"
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /sessions/{sessionId}/statistics:
+    get:
+      tags: [Session]
+      summary: Statistics Session
+      parameters:
+        - $ref: "#/components/parameters/sessionId"
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /refresh-tokens:
+    get:
+      tags: [RefreshToken]
+      summary: List refresh-tokens
+      parameters:
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Cursor"
+        - $ref: "#/components/parameters/Sort"
+      responses:
+        "200": { $ref: "#/components/responses/ListSuccess" }
+    post:
+      tags: [RefreshToken]
+      summary: Create RefreshToken
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody: { $ref: "#/components/requestBodies/GenericResource" }
+      responses:
+        "201": { $ref: "#/components/responses/Success" }
+        "422": { $ref: "#/components/responses/Error" }
+  /refresh-tokens/search:
+    get:
+      tags: [RefreshToken]
+      summary: Search refresh-tokens
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema: { type: string, minLength: 1 }
+      responses:
+        "200": { $ref: "#/components/responses/ListSuccess" }
+  /refresh-tokens/bulk:
+    post:
+      tags: [RefreshToken]
+      summary: Bulk create or update refresh-tokens
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody: { $ref: "#/components/requestBodies/Bulk" }
+      responses:
+        "202": { $ref: "#/components/responses/Success" }
+  /refresh-tokens/{refreshTokenId}:
+    get:
+      tags: [RefreshToken]
+      summary: Get RefreshToken by ID
+      parameters:
+        - $ref: "#/components/parameters/refreshTokenId"
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+        "404": { $ref: "#/components/responses/Error" }
+    put:
+      tags: [RefreshToken]
+      summary: Replace RefreshToken
+      parameters:
+        - $ref: "#/components/parameters/refreshTokenId"
+        - $ref: "#/components/parameters/IfMatch"
+      requestBody: { $ref: "#/components/requestBodies/GenericResource" }
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+    patch:
+      tags: [RefreshToken]
+      summary: Patch RefreshToken
+      parameters:
+        - $ref: "#/components/parameters/refreshTokenId"
+        - $ref: "#/components/parameters/IfMatch"
+      requestBody: { $ref: "#/components/requestBodies/GenericResource" }
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+    delete:
+      tags: [RefreshToken]
+      summary: Soft delete RefreshToken
+      parameters:
+        - $ref: "#/components/parameters/refreshTokenId"
+      responses:
+        "204": { description: No content }
+  /refresh-tokens/{refreshTokenId}/archive:
+    post:
+      tags: [RefreshToken]
+      summary: Archive RefreshToken
+      parameters:
+        - $ref: "#/components/parameters/refreshTokenId"
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /refresh-tokens/{refreshTokenId}/restore:
+    post:
+      tags: [RefreshToken]
+      summary: Restore RefreshToken
+      parameters:
+        - $ref: "#/components/parameters/refreshTokenId"
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /refresh-tokens/{refreshTokenId}/history:
+    get:
+      tags: [RefreshToken]
+      summary: History RefreshToken
+      parameters:
+        - $ref: "#/components/parameters/refreshTokenId"
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /refresh-tokens/{refreshTokenId}/statistics:
+    get:
+      tags: [RefreshToken]
+      summary: Statistics RefreshToken
+      parameters:
+        - $ref: "#/components/parameters/refreshTokenId"
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /notifications:
+    get:
+      tags: [Notification]
+      summary: List notifications
+      parameters:
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Cursor"
+        - $ref: "#/components/parameters/Sort"
+      responses:
+        "200": { $ref: "#/components/responses/ListSuccess" }
+    post:
+      tags: [Notification]
+      summary: Create Notification
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody: { $ref: "#/components/requestBodies/GenericResource" }
+      responses:
+        "201": { $ref: "#/components/responses/Success" }
+        "422": { $ref: "#/components/responses/Error" }
+  /notifications/search:
+    get:
+      tags: [Notification]
+      summary: Search notifications
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema: { type: string, minLength: 1 }
+      responses:
+        "200": { $ref: "#/components/responses/ListSuccess" }
+  /notifications/bulk:
+    post:
+      tags: [Notification]
+      summary: Bulk create or update notifications
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody: { $ref: "#/components/requestBodies/Bulk" }
+      responses:
+        "202": { $ref: "#/components/responses/Success" }
+  /notifications/{notificationId}:
+    get:
+      tags: [Notification]
+      summary: Get Notification by ID
+      parameters:
+        - $ref: "#/components/parameters/notificationId"
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+        "404": { $ref: "#/components/responses/Error" }
+    put:
+      tags: [Notification]
+      summary: Replace Notification
+      parameters:
+        - $ref: "#/components/parameters/notificationId"
+        - $ref: "#/components/parameters/IfMatch"
+      requestBody: { $ref: "#/components/requestBodies/GenericResource" }
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+    patch:
+      tags: [Notification]
+      summary: Patch Notification
+      parameters:
+        - $ref: "#/components/parameters/notificationId"
+        - $ref: "#/components/parameters/IfMatch"
+      requestBody: { $ref: "#/components/requestBodies/GenericResource" }
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+    delete:
+      tags: [Notification]
+      summary: Soft delete Notification
+      parameters:
+        - $ref: "#/components/parameters/notificationId"
+      responses:
+        "204": { description: No content }
+  /notifications/{notificationId}/archive:
+    post:
+      tags: [Notification]
+      summary: Archive Notification
+      parameters:
+        - $ref: "#/components/parameters/notificationId"
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /notifications/{notificationId}/restore:
+    post:
+      tags: [Notification]
+      summary: Restore Notification
+      parameters:
+        - $ref: "#/components/parameters/notificationId"
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /notifications/{notificationId}/history:
+    get:
+      tags: [Notification]
+      summary: History Notification
+      parameters:
+        - $ref: "#/components/parameters/notificationId"
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /notifications/{notificationId}/statistics:
+    get:
+      tags: [Notification]
+      summary: Statistics Notification
+      parameters:
+        - $ref: "#/components/parameters/notificationId"
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /feedback:
+    get:
+      tags: [Feedback]
+      summary: List feedback
+      parameters:
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Cursor"
+        - $ref: "#/components/parameters/Sort"
+      responses:
+        "200": { $ref: "#/components/responses/ListSuccess" }
+    post:
+      tags: [Feedback]
+      summary: Create Feedback
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody: { $ref: "#/components/requestBodies/GenericResource" }
+      responses:
+        "201": { $ref: "#/components/responses/Success" }
+        "422": { $ref: "#/components/responses/Error" }
+  /feedback/search:
+    get:
+      tags: [Feedback]
+      summary: Search feedback
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema: { type: string, minLength: 1 }
+      responses:
+        "200": { $ref: "#/components/responses/ListSuccess" }
+  /feedback/bulk:
+    post:
+      tags: [Feedback]
+      summary: Bulk create or update feedback
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody: { $ref: "#/components/requestBodies/Bulk" }
+      responses:
+        "202": { $ref: "#/components/responses/Success" }
+  /feedback/{feedbackId}:
+    get:
+      tags: [Feedback]
+      summary: Get Feedback by ID
+      parameters:
+        - $ref: "#/components/parameters/feedbackId"
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+        "404": { $ref: "#/components/responses/Error" }
+    put:
+      tags: [Feedback]
+      summary: Replace Feedback
+      parameters:
+        - $ref: "#/components/parameters/feedbackId"
+        - $ref: "#/components/parameters/IfMatch"
+      requestBody: { $ref: "#/components/requestBodies/GenericResource" }
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+    patch:
+      tags: [Feedback]
+      summary: Patch Feedback
+      parameters:
+        - $ref: "#/components/parameters/feedbackId"
+        - $ref: "#/components/parameters/IfMatch"
+      requestBody: { $ref: "#/components/requestBodies/GenericResource" }
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+    delete:
+      tags: [Feedback]
+      summary: Soft delete Feedback
+      parameters:
+        - $ref: "#/components/parameters/feedbackId"
+      responses:
+        "204": { description: No content }
+  /feedback/{feedbackId}/archive:
+    post:
+      tags: [Feedback]
+      summary: Archive Feedback
+      parameters:
+        - $ref: "#/components/parameters/feedbackId"
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /feedback/{feedbackId}/restore:
+    post:
+      tags: [Feedback]
+      summary: Restore Feedback
+      parameters:
+        - $ref: "#/components/parameters/feedbackId"
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /feedback/{feedbackId}/history:
+    get:
+      tags: [Feedback]
+      summary: History Feedback
+      parameters:
+        - $ref: "#/components/parameters/feedbackId"
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /feedback/{feedbackId}/statistics:
+    get:
+      tags: [Feedback]
+      summary: Statistics Feedback
+      parameters:
+        - $ref: "#/components/parameters/feedbackId"
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /analytics:
+    get:
+      tags: [AnalyticsSnapshot]
+      summary: List analytics
+      parameters:
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Cursor"
+        - $ref: "#/components/parameters/Sort"
+      responses:
+        "200": { $ref: "#/components/responses/ListSuccess" }
+    post:
+      tags: [AnalyticsSnapshot]
+      summary: Create AnalyticsSnapshot
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody: { $ref: "#/components/requestBodies/GenericResource" }
+      responses:
+        "201": { $ref: "#/components/responses/Success" }
+        "422": { $ref: "#/components/responses/Error" }
+  /analytics/search:
+    get:
+      tags: [AnalyticsSnapshot]
+      summary: Search analytics
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema: { type: string, minLength: 1 }
+      responses:
+        "200": { $ref: "#/components/responses/ListSuccess" }
+  /analytics/bulk:
+    post:
+      tags: [AnalyticsSnapshot]
+      summary: Bulk create or update analytics
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody: { $ref: "#/components/requestBodies/Bulk" }
+      responses:
+        "202": { $ref: "#/components/responses/Success" }
+  /analytics/{analyticsId}:
+    get:
+      tags: [AnalyticsSnapshot]
+      summary: Get AnalyticsSnapshot by ID
+      parameters:
+        - $ref: "#/components/parameters/analyticsId"
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+        "404": { $ref: "#/components/responses/Error" }
+    put:
+      tags: [AnalyticsSnapshot]
+      summary: Replace AnalyticsSnapshot
+      parameters:
+        - $ref: "#/components/parameters/analyticsId"
+        - $ref: "#/components/parameters/IfMatch"
+      requestBody: { $ref: "#/components/requestBodies/GenericResource" }
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+    patch:
+      tags: [AnalyticsSnapshot]
+      summary: Patch AnalyticsSnapshot
+      parameters:
+        - $ref: "#/components/parameters/analyticsId"
+        - $ref: "#/components/parameters/IfMatch"
+      requestBody: { $ref: "#/components/requestBodies/GenericResource" }
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+    delete:
+      tags: [AnalyticsSnapshot]
+      summary: Soft delete AnalyticsSnapshot
+      parameters:
+        - $ref: "#/components/parameters/analyticsId"
+      responses:
+        "204": { description: No content }
+  /analytics/{analyticsId}/archive:
+    post:
+      tags: [AnalyticsSnapshot]
+      summary: Archive AnalyticsSnapshot
+      parameters:
+        - $ref: "#/components/parameters/analyticsId"
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /analytics/{analyticsId}/restore:
+    post:
+      tags: [AnalyticsSnapshot]
+      summary: Restore AnalyticsSnapshot
+      parameters:
+        - $ref: "#/components/parameters/analyticsId"
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /analytics/{analyticsId}/history:
+    get:
+      tags: [AnalyticsSnapshot]
+      summary: History AnalyticsSnapshot
+      parameters:
+        - $ref: "#/components/parameters/analyticsId"
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /analytics/{analyticsId}/statistics:
+    get:
+      tags: [AnalyticsSnapshot]
+      summary: Statistics AnalyticsSnapshot
+      parameters:
+        - $ref: "#/components/parameters/analyticsId"
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /audit-logs:
+    get:
+      tags: [AuditLog]
+      summary: List audit-logs
+      parameters:
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Cursor"
+        - $ref: "#/components/parameters/Sort"
+      responses:
+        "200": { $ref: "#/components/responses/ListSuccess" }
+    post:
+      tags: [AuditLog]
+      summary: Create AuditLog
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody: { $ref: "#/components/requestBodies/GenericResource" }
+      responses:
+        "201": { $ref: "#/components/responses/Success" }
+        "422": { $ref: "#/components/responses/Error" }
+  /audit-logs/search:
+    get:
+      tags: [AuditLog]
+      summary: Search audit-logs
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema: { type: string, minLength: 1 }
+      responses:
+        "200": { $ref: "#/components/responses/ListSuccess" }
+  /audit-logs/bulk:
+    post:
+      tags: [AuditLog]
+      summary: Bulk create or update audit-logs
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody: { $ref: "#/components/requestBodies/Bulk" }
+      responses:
+        "202": { $ref: "#/components/responses/Success" }
+  /audit-logs/{auditLogId}:
+    get:
+      tags: [AuditLog]
+      summary: Get AuditLog by ID
+      parameters:
+        - $ref: "#/components/parameters/auditLogId"
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+        "404": { $ref: "#/components/responses/Error" }
+    put:
+      tags: [AuditLog]
+      summary: Replace AuditLog
+      parameters:
+        - $ref: "#/components/parameters/auditLogId"
+        - $ref: "#/components/parameters/IfMatch"
+      requestBody: { $ref: "#/components/requestBodies/GenericResource" }
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+    patch:
+      tags: [AuditLog]
+      summary: Patch AuditLog
+      parameters:
+        - $ref: "#/components/parameters/auditLogId"
+        - $ref: "#/components/parameters/IfMatch"
+      requestBody: { $ref: "#/components/requestBodies/GenericResource" }
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+    delete:
+      tags: [AuditLog]
+      summary: Soft delete AuditLog
+      parameters:
+        - $ref: "#/components/parameters/auditLogId"
+      responses:
+        "204": { description: No content }
+  /audit-logs/{auditLogId}/archive:
+    post:
+      tags: [AuditLog]
+      summary: Archive AuditLog
+      parameters:
+        - $ref: "#/components/parameters/auditLogId"
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /audit-logs/{auditLogId}/restore:
+    post:
+      tags: [AuditLog]
+      summary: Restore AuditLog
+      parameters:
+        - $ref: "#/components/parameters/auditLogId"
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /audit-logs/{auditLogId}/history:
+    get:
+      tags: [AuditLog]
+      summary: History AuditLog
+      parameters:
+        - $ref: "#/components/parameters/auditLogId"
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /audit-logs/{auditLogId}/statistics:
+    get:
+      tags: [AuditLog]
+      summary: Statistics AuditLog
+      parameters:
+        - $ref: "#/components/parameters/auditLogId"
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /feature-flags:
+    get:
+      tags: [FeatureFlag]
+      summary: List feature-flags
+      parameters:
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Cursor"
+        - $ref: "#/components/parameters/Sort"
+      responses:
+        "200": { $ref: "#/components/responses/ListSuccess" }
+    post:
+      tags: [FeatureFlag]
+      summary: Create FeatureFlag
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody: { $ref: "#/components/requestBodies/GenericResource" }
+      responses:
+        "201": { $ref: "#/components/responses/Success" }
+        "422": { $ref: "#/components/responses/Error" }
+  /feature-flags/search:
+    get:
+      tags: [FeatureFlag]
+      summary: Search feature-flags
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema: { type: string, minLength: 1 }
+      responses:
+        "200": { $ref: "#/components/responses/ListSuccess" }
+  /feature-flags/bulk:
+    post:
+      tags: [FeatureFlag]
+      summary: Bulk create or update feature-flags
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody: { $ref: "#/components/requestBodies/Bulk" }
+      responses:
+        "202": { $ref: "#/components/responses/Success" }
+  /feature-flags/{featureFlagId}:
+    get:
+      tags: [FeatureFlag]
+      summary: Get FeatureFlag by ID
+      parameters:
+        - $ref: "#/components/parameters/featureFlagId"
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+        "404": { $ref: "#/components/responses/Error" }
+    put:
+      tags: [FeatureFlag]
+      summary: Replace FeatureFlag
+      parameters:
+        - $ref: "#/components/parameters/featureFlagId"
+        - $ref: "#/components/parameters/IfMatch"
+      requestBody: { $ref: "#/components/requestBodies/GenericResource" }
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+    patch:
+      tags: [FeatureFlag]
+      summary: Patch FeatureFlag
+      parameters:
+        - $ref: "#/components/parameters/featureFlagId"
+        - $ref: "#/components/parameters/IfMatch"
+      requestBody: { $ref: "#/components/requestBodies/GenericResource" }
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+    delete:
+      tags: [FeatureFlag]
+      summary: Soft delete FeatureFlag
+      parameters:
+        - $ref: "#/components/parameters/featureFlagId"
+      responses:
+        "204": { description: No content }
+  /feature-flags/{featureFlagId}/archive:
+    post:
+      tags: [FeatureFlag]
+      summary: Archive FeatureFlag
+      parameters:
+        - $ref: "#/components/parameters/featureFlagId"
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /feature-flags/{featureFlagId}/restore:
+    post:
+      tags: [FeatureFlag]
+      summary: Restore FeatureFlag
+      parameters:
+        - $ref: "#/components/parameters/featureFlagId"
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /feature-flags/{featureFlagId}/history:
+    get:
+      tags: [FeatureFlag]
+      summary: History FeatureFlag
+      parameters:
+        - $ref: "#/components/parameters/featureFlagId"
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /feature-flags/{featureFlagId}/statistics:
+    get:
+      tags: [FeatureFlag]
+      summary: Statistics FeatureFlag
+      parameters:
+        - $ref: "#/components/parameters/featureFlagId"
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /system-settings:
+    get:
+      tags: [SystemSetting]
+      summary: List system-settings
+      parameters:
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Cursor"
+        - $ref: "#/components/parameters/Sort"
+      responses:
+        "200": { $ref: "#/components/responses/ListSuccess" }
+    post:
+      tags: [SystemSetting]
+      summary: Create SystemSetting
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody: { $ref: "#/components/requestBodies/GenericResource" }
+      responses:
+        "201": { $ref: "#/components/responses/Success" }
+        "422": { $ref: "#/components/responses/Error" }
+  /system-settings/search:
+    get:
+      tags: [SystemSetting]
+      summary: Search system-settings
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema: { type: string, minLength: 1 }
+      responses:
+        "200": { $ref: "#/components/responses/ListSuccess" }
+  /system-settings/bulk:
+    post:
+      tags: [SystemSetting]
+      summary: Bulk create or update system-settings
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody: { $ref: "#/components/requestBodies/Bulk" }
+      responses:
+        "202": { $ref: "#/components/responses/Success" }
+  /system-settings/{systemSettingId}:
+    get:
+      tags: [SystemSetting]
+      summary: Get SystemSetting by ID
+      parameters:
+        - $ref: "#/components/parameters/systemSettingId"
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+        "404": { $ref: "#/components/responses/Error" }
+    put:
+      tags: [SystemSetting]
+      summary: Replace SystemSetting
+      parameters:
+        - $ref: "#/components/parameters/systemSettingId"
+        - $ref: "#/components/parameters/IfMatch"
+      requestBody: { $ref: "#/components/requestBodies/GenericResource" }
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+    patch:
+      tags: [SystemSetting]
+      summary: Patch SystemSetting
+      parameters:
+        - $ref: "#/components/parameters/systemSettingId"
+        - $ref: "#/components/parameters/IfMatch"
+      requestBody: { $ref: "#/components/requestBodies/GenericResource" }
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+    delete:
+      tags: [SystemSetting]
+      summary: Soft delete SystemSetting
+      parameters:
+        - $ref: "#/components/parameters/systemSettingId"
+      responses:
+        "204": { description: No content }
+  /system-settings/{systemSettingId}/archive:
+    post:
+      tags: [SystemSetting]
+      summary: Archive SystemSetting
+      parameters:
+        - $ref: "#/components/parameters/systemSettingId"
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /system-settings/{systemSettingId}/restore:
+    post:
+      tags: [SystemSetting]
+      summary: Restore SystemSetting
+      parameters:
+        - $ref: "#/components/parameters/systemSettingId"
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /system-settings/{systemSettingId}/history:
+    get:
+      tags: [SystemSetting]
+      summary: History SystemSetting
+      parameters:
+        - $ref: "#/components/parameters/systemSettingId"
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /system-settings/{systemSettingId}/statistics:
+    get:
+      tags: [SystemSetting]
+      summary: Statistics SystemSetting
+      parameters:
+        - $ref: "#/components/parameters/systemSettingId"
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /queues/{queueId}/pause:
+    post:
+      tags: [Queue]
+      summary: Pause queue
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /queues/{queueId}/resume:
+    post:
+      tags: [Queue]
+      summary: Resume queue
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /queues/{queueId}/close:
+    post:
+      tags: [Queue]
+      summary: Close queue
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /queues/{queueId}/entries:
+    post:
+      tags: [Queue]
+      summary: Join queue
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /queues/{queueId}/call-next:
+    post:
+      tags: [Queue]
+      summary: Call next customer
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /queues/{queueId}/metrics:
+    get:
+      tags: [Queue]
+      summary: Queue metrics
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /queues/{queueId}/position:
+    get:
+      tags: [Queue]
+      summary: Queue position
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /queue-entries/{queueEntryId}/cancel:
+    post:
+      tags: [QueueEntry]
+      summary: Cancel entry
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /queue-entries/{queueEntryId}/serve:
+    post:
+      tags: [QueueEntry]
+      summary: Serve customer
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /queue-entries/{queueEntryId}/skip:
+    post:
+      tags: [QueueEntry]
+      summary: Skip customer
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /queue-entries/{queueEntryId}/recall:
+    post:
+      tags: [QueueEntry]
+      summary: Recall customer
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /queue-entries/{queueEntryId}/transfer:
+    post:
+      tags: [QueueEntry]
+      summary: Transfer entry
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /queue-entries/{queueEntryId}/complete:
+    post:
+      tags: [QueueEntry]
+      summary: Complete service
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+components:
+  securitySchemes:
+    bearerAuth: { type: http, scheme: bearer, bearerFormat: JWT }
+  parameters:
+    Limit: { name: limit, in: query, schema: { type: integer, default: 25, maximum: 100 } }
+    Cursor: { name: cursor, in: query, schema: { type: string } }
+    Sort: { name: sort, in: query, schema: { type: string, example: "-createdAt" } }
+    IdempotencyKey: { name: Idempotency-Key, in: header, schema: { type: string, maxLength: 128 } }
+    IfMatch: { name: If-Match, in: header, schema: { type: string } }
+    organizationId: { name: organizationId, in: path, required: true, schema: { type: string, pattern: "^[a-fA-F0-9]{24}$" } }
+    branchId: { name: branchId, in: path, required: true, schema: { type: string, pattern: "^[a-fA-F0-9]{24}$" } }
+    venueId: { name: venueId, in: path, required: true, schema: { type: string, pattern: "^[a-fA-F0-9]{24}$" } }
+    counterId: { name: counterId, in: path, required: true, schema: { type: string, pattern: "^[a-fA-F0-9]{24}$" } }
+    queueTemplateId: { name: queueTemplateId, in: path, required: true, schema: { type: string, pattern: "^[a-fA-F0-9]{24}$" } }
+    queueId: { name: queueId, in: path, required: true, schema: { type: string, pattern: "^[a-fA-F0-9]{24}$" } }
+    queueEntryId: { name: queueEntryId, in: path, required: true, schema: { type: string, pattern: "^[a-fA-F0-9]{24}$" } }
+    customerId: { name: customerId, in: path, required: true, schema: { type: string, pattern: "^[a-fA-F0-9]{24}$" } }
+    employeeId: { name: employeeId, in: path, required: true, schema: { type: string, pattern: "^[a-fA-F0-9]{24}$" } }
+    userId: { name: userId, in: path, required: true, schema: { type: string, pattern: "^[a-fA-F0-9]{24}$" } }
+    roleId: { name: roleId, in: path, required: true, schema: { type: string, pattern: "^[a-fA-F0-9]{24}$" } }
+    permissionId: { name: permissionId, in: path, required: true, schema: { type: string, pattern: "^[a-fA-F0-9]{24}$" } }
+    sessionId: { name: sessionId, in: path, required: true, schema: { type: string, pattern: "^[a-fA-F0-9]{24}$" } }
+    refreshTokenId: { name: refreshTokenId, in: path, required: true, schema: { type: string, pattern: "^[a-fA-F0-9]{24}$" } }
+    notificationId: { name: notificationId, in: path, required: true, schema: { type: string, pattern: "^[a-fA-F0-9]{24}$" } }
+    feedbackId: { name: feedbackId, in: path, required: true, schema: { type: string, pattern: "^[a-fA-F0-9]{24}$" } }
+    analyticsId: { name: analyticsId, in: path, required: true, schema: { type: string, pattern: "^[a-fA-F0-9]{24}$" } }
+    auditLogId: { name: auditLogId, in: path, required: true, schema: { type: string, pattern: "^[a-fA-F0-9]{24}$" } }
+    featureFlagId: { name: featureFlagId, in: path, required: true, schema: { type: string, pattern: "^[a-fA-F0-9]{24}$" } }
+    systemSettingId: { name: systemSettingId, in: path, required: true, schema: { type: string, pattern: "^[a-fA-F0-9]{24}$" } }
+  requestBodies:
+    GenericResource:
+      required: true
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/GenericResourceInput" }
+    Bulk:
+      required: true
+      content:
+        application/json:
+          schema: { type: object, properties: { items: { type: array, items: { $ref: "#/components/schemas/GenericResourceInput" }, maxItems: 100 } }, required: [items] }
+  responses:
+    Success:
+      description: Successful response
+      content: { application/json: { schema: { $ref: "#/components/schemas/SuccessEnvelope" } } }
+    ListSuccess:
+      description: Successful list response
+      content: { application/json: { schema: { $ref: "#/components/schemas/ListEnvelope" } } }
+    Error:
+      description: Error response
+      content: { application/json: { schema: { $ref: "#/components/schemas/ErrorEnvelope" } } }
+  schemas:
+    GenericResourceInput:
+      type: object
+      additionalProperties: true
+      properties:
+        name: { type: string, maxLength: 160 }
+        status: { type: string }
+        metadata: { type: object, additionalProperties: true }
+    SuccessEnvelope:
+      type: object
+      required: [success, data]
+      properties: { success: { const: true }, data: true, meta: { type: object, additionalProperties: true } }
+    ListEnvelope:
+      type: object
+      required: [success, data, meta]
+      properties: { success: { const: true }, data: { type: array, items: true }, meta: { type: object, additionalProperties: true } }
+    ErrorEnvelope:
+      type: object
+      required: [success, error, meta]
+      properties:
+        success: { const: false }
+        error: { type: object, required: [code, message], properties: { code: { type: string }, message: { type: string }, details: { type: array, items: { type: object, additionalProperties: true } } } }
+        meta: { type: object, additionalProperties: true }

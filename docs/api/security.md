@@ -1,0 +1,3 @@
+# Security Considerations
+
+HTTPS is mandatory. Bearer tokens are sent only in `Authorization`. Refresh tokens rotate and are revocable by session/device. CORS allows configured frontend origins only. Inputs are schema-validated, bounded, normalized, and encoded on output. Sensitive fields such as password hashes, refresh token hashes, reset tokens, verification tokens, and provider secrets are never returned. Audit logs record authentication, authorization failures, administrative mutations, queue state transitions, exports, and token revocation. Protections include rate limits, account lockout, CSRF controls for cookie deployments, ObjectId validation, tenant-scope enforcement, and least-privilege service credentials.
