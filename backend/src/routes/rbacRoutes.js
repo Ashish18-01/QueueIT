@@ -1,0 +1,12 @@
+const express = require('express');
+const c = require('../controllers/rbacController');
+const v = require('../validators/authValidators');
+const { authenticate, requirePermission } = require('../middlewares/auth');
+const asyncHandler = require('../utils/asyncHandler');
+const r = express.Router();
+r.use(authenticate);
+r.get('/roles', requirePermission('roles:read'), asyncHandler(c.listRoles));
+r.post('/roles', requirePermission('roles:write'), asyncHandler(c.createRole));
+r.patch('/users/:userId/roles', requirePermission('roles:assign'), v.roleAssign, asyncHandler(c.assignRoles));
+r.patch('/roles/:roleId/permissions', requirePermission('permissions:assign'), v.permissionAssign, asyncHandler(c.setPermissions));
+module.exports = r;
