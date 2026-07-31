@@ -1,0 +1,10 @@
+const { User, Session } = require('../models');
+const { AuthenticationError, AuthorizationError, NotFoundError } = require('../errors');
+const { verifyAccessToken } = require('../services/tokenService');
+const rbac = require('../services/rbacService');
+const authenticate = async (req, _res, next) => { try { const header = req.get('authorization') || ''; const token = header.startsWith('Bearer ') ? header.slice(7) : req.cookies.accessToken; if (!token) throw new AuthenticationError(); const payload = verifyAccessToken(token); const user = await User.findById(payload.sub); if (!user || user.status !== 'active') throw new AuthenticationError(); req.user = user; req.auth = payload; next(); } catch (e) { next(e.statusCode ? e : new AuthenticationError('Invalid or expired token')); } };
+const requireRoles = (...roles) => (req, _res, next) => req.user && roles.some((r) => req.user.roleNames.includes(r)) ? next() : next(new AuthorizationError('Required role missing'));
+const requirePermission = (permission) => async (req, _res, next) => (await rbac.hasPermission(req.user, permission, req.params)) ? next() : next(new AuthorizationError('Required permission missing'));
+const requireOwnership = (getOwnerId) => async (req, _res, next) => String(await getOwnerId(req)) === String(req.user?._id) ? next() : next(new AuthorizationError('Resource ownership required'));
+const currentSession = async (req, _res, next) => { const token = req.cookies.refreshToken || req.body.refreshToken; if (!token) return next(); const { hash } = require('../services/tokenService'); req.session = await Session.findOne({ refreshTokenHash: hash(token), revokedAt: null }); next(); };
+module.exports = { authenticate, requireRoles, requirePermission, requireOwnership, currentSession };

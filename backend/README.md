@@ -1,51 +1,62 @@
 # QueueIt Backend
 
-Foundational Node.js, Express, MongoDB, and Mongoose backend for QueueIt. This phase configures infrastructure only: no authentication, authorization, queue, or business modules are implemented.
+Express/MongoDB backend foundation for QueueIt.
 
-## Structure
+## Authentication architecture
 
-- `src/config` environment and Swagger configuration.
-- `src/database` MongoDB/Mongoose connection lifecycle and health utilities.
-- `src/middlewares` Express cross-cutting middleware.
-- `src/errors` centralized application errors.
-- `src/validators` reusable validation helpers.
-- `src/routes` versioned API routing.
-- `src/controllers` thin infrastructure controllers.
-- `src/utils` response, date, ID, pagination, async, and logging helpers.
-- `tests` Jest/Supertest setup and foundation tests.
-- `logs`, `public`, and `uploads` runtime directories.
+The authentication module is mounted at `/api/v1/auth` and keeps controllers thin: request validation runs in `src/validators`, orchestration lives in `src/services/authService.js`, persistent state uses Mongoose models, and route protection uses `src/middlewares/auth.js`.
 
-## Getting started
+Core collections:
+
+- `users`: normalized email identity, bcrypt password hash, Google account link, verification status, role names, login history, and password history.
+- `sessions`: one refresh-token session per device, storing only a SHA-256 hash of the refresh token, expiration, revocation state, and activity metadata.
+- `authtokens`: hashed one-time email verification and password reset tokens with TTL expiry.
+- `roles`: RBAC roles with permissions, inheritance, hierarchy level, and system/organization/branch/venue scope.
+- `auditlogs`: security-relevant events such as registration, login, logout, password resets, verification, session revocation, and RBAC changes.
+
+## JWT and refresh-token lifecycle
+
+Login creates a short-lived JWT access token and a long-lived opaque refresh token. The access token contains the user id in `sub` and the current role names. The refresh token is stored in the client as an HTTP-only cookie and in MongoDB only as a hash.
+
+Refresh calls validate the session, reject revoked or expired sessions, rotate the refresh token, update session activity, and issue a new JWT. If a reused/invalidated refresh token is detected for a known family, the family is revoked to reduce replay risk.
+
+Logout revokes the current refresh-token session. Logout-all revokes every active session for the authenticated user and clears cookies.
+
+## Cookie strategy and CSRF considerations
+
+`accessToken` and `refreshToken` cookies are HTTP-only, `SameSite=Lax`, and `Secure` in production. API clients may also send the access token with `Authorization: Bearer <token>`. Because cookie credentials are supported, state-changing browser integrations should add a CSRF token/header at the edge or frontend integration layer before enabling broad cross-site origins.
+
+## Password and email flows
+
+Passwords must be at least 12 characters and include lowercase, uppercase, numeric, and special characters. bcrypt hashes passwords with 12 rounds. Password history prevents reuse during reset/change flows, and password metadata supports expiration policies.
+
+Registration returns a development-friendly verification token. Production deployments should deliver that token through email. Forgot-password similarly returns a reset token for test/dev integration and should be wired to SMTP before public launch.
+
+## RBAC model
+
+Users have `roleNames`. Roles define permission strings, optional inherited roles, hierarchy level, and scope (`system`, `organization`, `branch`, `venue`). Authorization middleware supports role checks, permission checks, ownership checks, and authenticated-user injection as `req.user`.
+
+Permission checks support exact permissions, wildcard `*`, and scoped variants such as `queues:read:organization`, `queues:read:branch`, and `queues:read:venue` when matching route parameters are present. Queue business endpoints are intentionally not implemented in this phase.
+
+## Environment variables
+
+Required in production:
+
+- `MONGODB_URI`
+- `JWT_SECRET`
+- `JWT_EXPIRES_IN` (default `15m`)
+- `REFRESH_TOKEN_SECRET` (reserved for deployments that use signed refresh tokens)
+- `REFRESH_TOKEN_EXPIRES_IN` (default `7d`)
+- `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` / `GOOGLE_CALLBACK_URL` for Google OAuth integrations
+- `CORS_ORIGIN` and `CORS_CREDENTIALS`
+
+## Setup
 
 ```bash
-cd backend
-cp .env.example .env
 npm install
+cp .env.example .env
+npm run lint
+npm test
+npm run docs
 npm run dev
 ```
-
-## Environment
-
-`.env.example` documents application, MongoDB, Redis, JWT, refresh token, Google OAuth, SMTP, Cloudinary, Socket.IO, logging, CORS, rate limiting, and feature flag variables. Production requires strong JWT secrets and `MONGODB_URI`.
-
-## Scripts
-
-- `npm start` runs the production server.
-- `npm run dev` runs Nodemon.
-- `npm run lint` checks ESLint rules.
-- `npm run format:check` checks Prettier formatting.
-- `npm test` runs Jest/Supertest.
-- `npm run docs` validates that the Phase 4 OpenAPI document loads.
-
-## Endpoints
-
-- `GET /api/v1/health`
-- `GET /api/v1/ready`
-- `GET /api/v1/live`
-- `GET /api/v1/version`
-- `GET /api/v1/info`
-- `GET /api/v1/docs`
-
-## Development standards
-
-Keep routes declarative, controllers thin, business logic in future services, persistence in repositories, and shared cross-cutting concerns in `shared` or `utils`. Use async/await, centralized errors, structured logging, environment-backed configuration, and reusable validators.

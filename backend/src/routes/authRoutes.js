@@ -1,0 +1,11 @@
+const express = require('express');
+const c = require('../controllers/authController');
+const v = require('../validators/authValidators');
+const { authenticate } = require('../middlewares/auth');
+const asyncHandler = require('../utils/asyncHandler');
+const r = express.Router();
+r.post('/register', v.register, asyncHandler(c.register)); r.post('/login', v.login, asyncHandler(c.login)); r.post('/refresh', v.tokenBody, asyncHandler(c.refresh)); r.post('/logout', authenticate, asyncHandler(c.logout)); r.post('/logout-all', authenticate, asyncHandler(c.logoutAll));
+r.post('/forgot-password', v.forgot, asyncHandler(c.forgot)); r.post('/reset-password', v.reset, asyncHandler(c.reset)); r.post('/change-password', authenticate, v.change, asyncHandler(c.change));
+r.post('/verify-email', v.verify, asyncHandler(c.verify)); r.get('/verify-email/:token', v.verify, asyncHandler(c.verify)); r.post('/resend-verification', authenticate, asyncHandler(c.resend));
+r.post('/google', v.google, asyncHandler(c.google)); r.get('/sessions', authenticate, asyncHandler(c.sessions)); r.delete('/sessions/:id', authenticate, asyncHandler(c.revokeSession));
+module.exports = r;

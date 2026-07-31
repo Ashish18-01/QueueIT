@@ -1,0 +1,18 @@
+const { success } = require('../utils/response');
+const auth = require('../services/authService');
+const { Session } = require('../models');
+const cookieOptions = { httpOnly: true, sameSite: 'lax', secure: process.env.NODE_ENV === 'production', path: '/' };
+const setCookies = (res, data) => { res.cookie('accessToken', data.accessToken, { ...cookieOptions, maxAge: 15 * 60 * 1000 }); res.cookie('refreshToken', data.refreshToken, { ...cookieOptions, maxAge: 7 * 86400000 }); };
+exports.register = async (req, res) => success(res, await auth.register(req.body, req), 'Registered', 201);
+exports.login = async (req, res) => { const data = await auth.login(req.body, req); setCookies(res, data); success(res, data, 'Logged in'); };
+exports.refresh = async (req, res) => { const data = await auth.rotateRefreshToken(req.body.refreshToken || req.cookies.refreshToken, req); setCookies(res, data); success(res, data, 'Token refreshed'); };
+exports.logout = async (req, res) => { await auth.logout(req.body.refreshToken || req.cookies.refreshToken, req.user?._id, false, req); res.clearCookie('accessToken'); res.clearCookie('refreshToken'); success(res, null, 'Logged out'); };
+exports.logoutAll = async (req, res) => { await auth.logout(null, req.user._id, true, req); res.clearCookie('accessToken'); res.clearCookie('refreshToken'); success(res, null, 'Logged out from all sessions'); };
+exports.forgot = async (req, res) => success(res, await auth.forgotPassword(req.body.email, req), 'Password reset requested');
+exports.reset = async (req, res) => { await auth.resetPassword(req.body.token, req.body.password, req); success(res, null, 'Password reset'); };
+exports.change = async (req, res) => { await auth.changePassword(req.user._id, req.body.currentPassword, req.body.password, req); success(res, null, 'Password changed'); };
+exports.verify = async (req, res) => success(res, await auth.verifyEmail(req.body.token || req.params.token, req), 'Email verified');
+exports.resend = async (req, res) => success(res, { verificationToken: await auth.issueAuthToken(req.user, 'email_verification', 1440) }, 'Verification sent');
+exports.google = async (req, res) => { const data = await auth.googleLogin(req.body, req); setCookies(res, data); success(res, data, 'Logged in with Google'); };
+exports.sessions = async (req, res) => success(res, await Session.find({ user: req.user._id }).select('-refreshTokenHash').sort('-updatedAt'), 'Sessions');
+exports.revokeSession = async (req, res) => { await Session.updateOne({ _id: req.params.id, user: req.user._id }, { revokedAt: new Date(), revokedReason: 'user_revoked' }); success(res, null, 'Session revoked'); };

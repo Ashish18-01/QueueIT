@@ -1,2 +1,1 @@
-// Central model registry. Application models are intentionally added in later phases.
-module.exports = {};
+module.exports = { User: require('./User'), Role: require('./Role'), Session: require('./Session'), AuthToken: require('./AuthToken'), AuditLog: require('./AuditLog') };
