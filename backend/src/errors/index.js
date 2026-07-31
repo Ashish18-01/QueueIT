@@ -1,0 +1,10 @@
+const AppError = require('./AppError');
+const codes = require('../constants/errorCodes');
+class ValidationError extends AppError { constructor(message = 'Validation failed', details) { super(message, 400, codes.VALIDATION_ERROR, details); } }
+class AuthenticationError extends AppError { constructor(message = 'Authentication required') { super(message, 401, codes.AUTHENTICATION_ERROR); } }
+class AuthorizationError extends AppError { constructor(message = 'Forbidden') { super(message, 403, codes.AUTHORIZATION_ERROR); } }
+class NotFoundError extends AppError { constructor(message = 'Resource not found') { super(message, 404, codes.NOT_FOUND); } }
+class ConflictError extends AppError { constructor(message = 'Resource conflict') { super(message, 409, codes.CONFLICT); } }
+class RateLimitError extends AppError { constructor(message = 'Too many requests') { super(message, 429, codes.RATE_LIMITED); } }
+class InternalServerError extends AppError { constructor(message = 'Internal server error') { super(message, 500, codes.INTERNAL_ERROR); } }
+module.exports = { AppError, ValidationError, AuthenticationError, AuthorizationError, NotFoundError, ConflictError, RateLimitError, InternalServerError };
