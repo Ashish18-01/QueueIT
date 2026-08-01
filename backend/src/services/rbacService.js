@@ -1,5 +1,5 @@
 const { Role } = require('../models');
-const builtIn = { user: [], admin: ['*'], owner: ['*'] };
+const builtIn = { user: [], admin: ['*'], owner: ['*'], super_admin: ['*'], organization_admin: ['queues:read', 'queues:write'], venue_manager: ['queues:read', 'queues:write'], counter_operator: ['queues:read'] };
 const expand = async (roleNames = [], seen = new Set()) => {
   const perms = new Set();
   for (const name of roleNames) {
