@@ -22,3 +22,5 @@ exports.createQueue = [...fieldChains(true), validate];
 exports.updateQueue = [...fieldChains(false), validate];
 exports.queueId = [param('queueId').isMongoId(), validate];
 exports.listQueues = [query('page').optional().isInt({ min: 1 }), query('limit').optional().isInt({ min: 1, max: 100 }), query('status').optional().isIn(QUEUE_STATUSES), query('visibility').optional().isIn(QUEUE_VISIBILITIES), query('sortOrder').optional().isIn(['asc', 'desc']), validate];
+
+exports.joinQueue = [param('queueId').isMongoId(), body('customerId').optional().isMongoId(), body('organizationId').optional().isMongoId(), body('branchId').optional().isMongoId(), body('venueId').optional().isMongoId(), body('metadata').optional().isObject(), validate];

@@ -2,6 +2,8 @@ const QUEUE_STATUSES = ['draft', 'active', 'paused', 'closed', 'archived'];
 const QUEUE_VISIBILITIES = ['public', 'private', 'internal'];
 const TOKEN_STRATEGIES = ['sequential', 'daily_reset', 'manual'];
 const QUEUE_CATEGORIES = ['hospital_opd', 'bank_counter', 'library_desk', 'college_cafeteria', 'help_desk', 'general'];
+const QUEUE_ENTRY_STATUSES = ['waiting', 'serving', 'completed', 'left', 'cancelled'];
+const ACTIVE_QUEUE_ENTRY_STATUSES = ['waiting', 'serving'];
 const QUEUE_ACTION_ROLES = ['venue_manager', 'organization_admin', 'super_admin', 'admin', 'owner'];
 const MUTABLE_STATUSES = ['draft', 'active', 'paused', 'closed'];
 const ALLOWED_STATUS_TRANSITIONS = {
@@ -18,4 +20,4 @@ const QUEUE_TEMPLATES = {
   college_cafeteria: { name: 'College Cafeteria', category: 'college_cafeteria', tokenPrefix: 'CAF', tokenStrategy: 'daily_reset', averageServiceTimeMinutes: 3, maximumCapacity: 200, dailyCapacity: 1000, visibility: 'public', priorityEnabled: false },
   help_desk: { name: 'Help Desk', category: 'help_desk', tokenPrefix: 'HLP', tokenStrategy: 'sequential', averageServiceTimeMinutes: 12, maximumCapacity: 100, dailyCapacity: 350, visibility: 'public', priorityEnabled: true },
 };
-module.exports = { QUEUE_STATUSES, QUEUE_VISIBILITIES, TOKEN_STRATEGIES, QUEUE_CATEGORIES, QUEUE_ACTION_ROLES, MUTABLE_STATUSES, ALLOWED_STATUS_TRANSITIONS, QUEUE_TEMPLATES };
+module.exports = { QUEUE_STATUSES, QUEUE_VISIBILITIES, TOKEN_STRATEGIES, QUEUE_CATEGORIES, QUEUE_ENTRY_STATUSES, ACTIVE_QUEUE_ENTRY_STATUSES, QUEUE_ACTION_ROLES, MUTABLE_STATUSES, ALLOWED_STATUS_TRANSITIONS, QUEUE_TEMPLATES };

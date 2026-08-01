@@ -2351,6 +2351,24 @@ paths:
       summary: Complete service
       responses:
         "200": { $ref: "#/components/responses/Success" }
+  /queues/{queueId}/join:
+    post:
+      tags: [QueueEntry]
+      summary: Join an active queue
+      parameters:
+        - $ref: "#/components/parameters/queueId"
+      requestBody: { $ref: "#/components/requestBodies/GenericResource" }
+      responses:
+        "201": { $ref: "#/components/responses/Success" }
+        "409": { $ref: "#/components/responses/Error" }
+  /queue-entries/{queueEntryId}/leave:
+    post:
+      tags: [QueueEntry]
+      summary: Leave queue
+      parameters:
+        - $ref: "#/components/parameters/queueEntryId"
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
 components:
   securitySchemes:
     bearerAuth: { type: http, scheme: bearer, bearerFormat: JWT }

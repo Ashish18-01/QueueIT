@@ -1,22 +1,34 @@
-# Queue Foundation Module
+# Queue Management Module
 
-The Queue Foundation module implements administrative queue CRUD and lifecycle operations only. It intentionally excludes queue entries, token generation, queue positions, ETA calculations, counters, Socket.IO, notifications, analytics, and frontend features.
+The Queue Management module implements queue administration plus customer queue entry workflows. It intentionally excludes Socket.IO, notifications, ETA calculation, queue position updates, analytics, and frontend features.
 
-## Configuration
+## Queue administration
 
 Queues contain tenant ownership (`organizationId`, `branchId`, `venueId`), optional `counterId` and `queueTemplateId`, display fields, category, token prefix/strategy, capacity, service-time assumptions, operating hours, visibility, lifecycle status, priority flag, and active flag.
 
-## Lifecycle
-
-Approved transitions are enforced by the service layer:
+Queue names are unique within a venue for non-deleted queues. Queue deletes are soft deletes and lifecycle transitions are enforced by the service layer:
 
 `draft -> active -> paused -> closed -> archived`
 
 Resume transitions a paused queue back to `active`. Restore transitions an archived queue back to `closed` so managers can intentionally reactivate it later.
 
-## Permissions
+## Queue entries
 
-All routes require authentication. `queues:read` protects read/template/search/list endpoints and `queues:write` protects mutations. Queue management is restricted to Venue Managers, Organization Admins, Super Admins, and built-in administrative roles.
+Customers join an active queue through `POST /api/v1/queues/{queueId}/join`. The service rejects joins when the queue is paused, closed, archived, inactive, already at active capacity, or when the customer already has a waiting/serving entry in that queue.
+
+Queue entry tokens are generated sequentially per queue using the queue token prefix and a zero-padded number, for example `Q-0001`. FIFO ordering is maintained by sorting entries by `joinedAt` and `tokenNumber`.
+
+Supported queue entry operations:
+
+- `GET /api/v1/queue-entries` for paginated filtering by queue, customer, status, tenant, and token search.
+- `GET /api/v1/queue-entries/{entryId}` to read one entry with tenant and ownership checks.
+- `POST /api/v1/queue-entries/{entryId}/leave` for a customer to leave an active entry.
+- `POST /api/v1/queue-entries/{entryId}/cancel` for managers to cancel an active entry.
+- `DELETE /api/v1/queue-entries/{entryId}` for soft deletion.
+
+## Permissions and audit
+
+All routes require authentication. Queue CRUD uses `queues:read` and `queues:write`; customer join and leave are authenticated ownership workflows. Queue management is restricted to Venue Managers, Organization Admins, Super Admins, and built-in administrative roles. Queue entry actions record audit events including join, leave, cancel, and delete.
 
 ## Templates
 
