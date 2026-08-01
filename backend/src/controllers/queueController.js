@@ -1,0 +1,15 @@
+const service = require('../services/queueService');
+const { success } = require('../utils/response');
+exports.templates = (_req, res) => success(res, service.templates(), 'Queue templates');
+exports.create = async (req, res) => success(res, await service.create(req.body, req.user, req), 'Queue created', 201);
+exports.list = async (req, res) => { const { items, meta } = await service.list(req.query, req.user); success(res, items, 'Queues', 200, meta); };
+exports.search = exports.list;
+exports.get = async (req, res) => success(res, await service.get(req.params.queueId, req.user), 'Queue');
+exports.update = async (req, res) => success(res, await service.update(req.params.queueId, req.body, req.user, req), 'Queue updated');
+exports.remove = async (req, res) => success(res, await service.softDelete(req.params.queueId, req.user, req), 'Queue deleted');
+exports.activate = async (req, res) => success(res, await service.transition(req.params.queueId, 'active', 'activated', req.user, req), 'Queue activated');
+exports.pause = async (req, res) => success(res, await service.transition(req.params.queueId, 'paused', 'paused', req.user, req), 'Queue paused');
+exports.resume = exports.activate;
+exports.close = async (req, res) => success(res, await service.transition(req.params.queueId, 'closed', 'closed', req.user, req), 'Queue closed');
+exports.archive = async (req, res) => success(res, await service.archive(req.params.queueId, req.user, req), 'Queue archived');
+exports.restore = async (req, res) => success(res, await service.restore(req.params.queueId, req.user, req), 'Queue restored');

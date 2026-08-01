@@ -1,5 +1,5 @@
 const { User, Session } = require('../models');
-const { AuthenticationError, AuthorizationError, NotFoundError } = require('../errors');
+const { AuthenticationError, AuthorizationError } = require('../errors');
 const { verifyAccessToken } = require('../services/tokenService');
 const rbac = require('../services/rbacService');
 const authenticate = async (req, _res, next) => { try { const header = req.get('authorization') || ''; const token = header.startsWith('Bearer ') ? header.slice(7) : req.cookies.accessToken; if (!token) throw new AuthenticationError(); const payload = verifyAccessToken(token); const user = await User.findById(payload.sub); if (!user || user.status !== 'active') throw new AuthenticationError(); req.user = user; req.auth = payload; next(); } catch (e) { next(e.statusCode ? e : new AuthenticationError('Invalid or expired token')); } };

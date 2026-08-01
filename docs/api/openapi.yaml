@@ -679,6 +679,12 @@ paths:
       responses:
         "201": { $ref: "#/components/responses/Success" }
         "422": { $ref: "#/components/responses/Error" }
+  /queues/templates:
+    get:
+      tags: [Queue]
+      summary: List reusable Queue templates
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
   /queues/search:
     get:
       tags: [Queue]
@@ -733,6 +739,38 @@ paths:
         - $ref: "#/components/parameters/queueId"
       responses:
         "204": { description: No content }
+  /queues/{queueId}/activate:
+    post:
+      tags: [Queue]
+      summary: Activate Queue
+      parameters:
+        - $ref: "#/components/parameters/queueId"
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /queues/{queueId}/pause:
+    post:
+      tags: [Queue]
+      summary: Pause Queue
+      parameters:
+        - $ref: "#/components/parameters/queueId"
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /queues/{queueId}/resume:
+    post:
+      tags: [Queue]
+      summary: Resume Queue
+      parameters:
+        - $ref: "#/components/parameters/queueId"
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /queues/{queueId}/close:
+    post:
+      tags: [Queue]
+      summary: Close Queue
+      parameters:
+        - $ref: "#/components/parameters/queueId"
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
   /queues/{queueId}/archive:
     post:
       tags: [Queue]
