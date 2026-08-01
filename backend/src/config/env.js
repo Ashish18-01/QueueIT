@@ -34,7 +34,7 @@ const config = {
   jwt: { secret: process.env.JWT_SECRET || '', expiresIn: process.env.JWT_EXPIRES_IN || '15m' },
   refreshToken: { secret: process.env.REFRESH_TOKEN_SECRET || '', expiresIn: process.env.REFRESH_TOKEN_EXPIRES_IN || '7d' },
   cors: { origin: process.env.CORS_ORIGIN || '*', credentials: bool(process.env.CORS_CREDENTIALS, true) },
-  socket: { corsOrigin: process.env.SOCKET_CORS_ORIGIN || '*' },
+  socket: { corsOrigin: process.env.SOCKET_CORS_ORIGIN || '*', pingTimeoutMs: num(process.env.SOCKET_PING_TIMEOUT_MS, 20000), pingIntervalMs: num(process.env.SOCKET_PING_INTERVAL_MS, 25000), connectTimeoutMs: num(process.env.SOCKET_CONNECT_TIMEOUT_MS, 45000), ackTimeoutMs: num(process.env.SOCKET_ACK_TIMEOUT_MS, 5000) },
   logging: { level: process.env.LOG_LEVEL || 'info', toFile: bool(process.env.LOG_TO_FILE, true), dir: process.env.LOG_DIR || 'logs' },
   rateLimit: { windowMs: num(process.env.RATE_LIMIT_WINDOW_MS, 900000), max: num(process.env.RATE_LIMIT_MAX, 100) },
   features: { registrationEnabled: bool(process.env.FEATURE_REGISTRATION_ENABLED, true), queueEnabled: bool(process.env.FEATURE_QUEUE_ENABLED) },

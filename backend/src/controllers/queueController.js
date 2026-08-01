@@ -9,7 +9,7 @@ exports.update = async (req, res) => success(res, await service.update(req.param
 exports.remove = async (req, res) => success(res, await service.softDelete(req.params.queueId, req.user, req), 'Queue deleted');
 exports.activate = async (req, res) => success(res, await service.transition(req.params.queueId, 'active', 'activated', req.user, req), 'Queue activated');
 exports.pause = async (req, res) => success(res, await service.transition(req.params.queueId, 'paused', 'paused', req.user, req), 'Queue paused');
-exports.resume = exports.activate;
+exports.resume = async (req, res) => success(res, await service.transition(req.params.queueId, 'active', 'resumed', req.user, req), 'Queue resumed');
 exports.close = async (req, res) => success(res, await service.transition(req.params.queueId, 'closed', 'closed', req.user, req), 'Queue closed');
 exports.archive = async (req, res) => success(res, await service.archive(req.params.queueId, req.user, req), 'Queue archived');
 exports.restore = async (req, res) => success(res, await service.restore(req.params.queueId, req.user, req), 'Queue restored');

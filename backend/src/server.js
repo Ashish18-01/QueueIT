@@ -1,9 +1,9 @@
 const http = require('http');
-const { Server } = require('socket.io');
 const app = require('./app');
 const { config, validateEnv } = require('./config/env');
 const { connectDatabase, disconnectDatabase } = require('./database/connection');
 const logger = require('./utils/logger');
+const socket = require('./socket');
 
 let server;
 const shutdown = async (signal) => {
@@ -15,7 +15,7 @@ const start = async () => {
   validateEnv();
   await connectDatabase();
   server = http.createServer(app);
-  const io = new Server(server, { cors: { origin: config.socket.corsOrigin } });
+  const io = await socket.init(server);
   app.set('io', io);
   server.listen(config.app.port, config.app.host, () => logger.info('Server started', { port: config.app.port, env: config.nodeEnv }));
 };

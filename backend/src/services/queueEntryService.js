@@ -2,6 +2,7 @@ const entryRepo = require('../repositories/queueEntryRepository');
 const queueRepo = require('../repositories/queueRepository');
 const audit = require('./auditService');
 const processing = require('./queueProcessingService');
+const socket = require('../socket');
 const { NotFoundError, ConflictError, AuthorizationError } = require('../errors');
 const { ACTIVE_QUEUE_ENTRY_STATUSES } = require('../constants/queueConstants');
 
@@ -28,6 +29,8 @@ exports.join = async (queueId, data, user, req) => {
   const entry = await entryRepo.create({ organizationId: queue.organizationId, branchId: queue.branchId, venueId: queue.venueId, queueId: queue._id, customerId, tokenNumber, token: tokenFor(queue, tokenNumber), position, estimatedWaitMinutes, estimatedServiceAt: new Date(Date.now() + estimatedWaitMinutes * 60000), metadata: data.metadata });
   await processing.recalculate(queue._id, queue);
   await audit.record('queueEntry.joined', { actor: user._id, target: entry.id, metadata: { queueId: queue.id, token: entry.token, requestId: req.id }, req });
+  socket.broadcast(socket.EVENTS.CUSTOMER_JOINED, entry.toObject ? entry.toObject() : entry);
+  socket.broadcast(socket.EVENTS.TOKEN_GENERATED, entry.toObject ? entry.toObject() : entry, { rooms: [socket.roomsForResource(entry)[3], `customer:${entry.customerId}`].filter(Boolean) });
   return entry;
 };
 exports.leave = async (id, user, req) => {
@@ -36,6 +39,7 @@ exports.leave = async (id, user, req) => {
   const updated = await entryRepo.update(id, tenantFromEntry(entry), { status: 'left', leftAt: new Date(), position: 0, estimatedWaitMinutes: 0 });
   await processing.recalculate(entry.queueId, await queueRepo.findById(entry.queueId, tenantFromEntry(entry)));
   await audit.record('queueEntry.left', { actor: user._id, target: id, metadata: { queueId: entry.queueId, requestId: req.id }, req });
+  socket.broadcast(socket.EVENTS.CUSTOMER_LEFT, updated.toObject ? updated.toObject() : updated);
   return updated;
 };
 exports.cancel = async (id, user, req) => {
@@ -44,6 +48,7 @@ exports.cancel = async (id, user, req) => {
   const updated = await entryRepo.update(id, tenantFromEntry(entry), { status: 'cancelled', cancelledAt: new Date(), cancelledBy: user._id, position: 0, estimatedWaitMinutes: 0 });
   await processing.recalculate(entry.queueId, await queueRepo.findById(entry.queueId, tenantFromEntry(entry)));
   await audit.record('queueEntry.cancelled', { actor: user._id, target: id, metadata: { queueId: entry.queueId, requestId: req.id }, req });
+  socket.broadcast(socket.EVENTS.ENTRY_CANCELLED, updated.toObject ? updated.toObject() : updated);
   return updated;
 };
 exports.remove = async (id, user, req) => { const entry = await exports.get(id, user); const updated = await entryRepo.update(id, tenantFromEntry(entry), { deletedAt: new Date(), deletedBy: user._id }); await audit.record('queueEntry.deleted', { actor: user._id, target: id, metadata: { queueId: entry.queueId, requestId: req.id }, req }); return updated; };

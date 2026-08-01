@@ -60,3 +60,46 @@ npm test
 npm run docs
 npm run dev
 ```
+
+## Real-time Socket.IO API
+
+QueueIt exposes a Socket.IO server on the same HTTP server as the REST API. Clients authenticate during the Socket.IO handshake with the existing JWT access token:
+
+```js
+io(API_URL, { auth: { token: accessToken, counterId: optionalCounterId } });
+```
+
+Unauthorized sockets are rejected before connection. Authenticated sockets are automatically joined to authorized organization, branch, venue, customer, employee, and admin rooms. Clients can request additional authorized rooms with `room:join` and leave them with `room:leave`; both events support acknowledgements in the shape `{ ok, room, error }`.
+
+### Redis adapter
+
+Set `REDIS_ENABLED=true` and `REDIS_URL=redis://host:6379` to enable the Socket.IO Redis adapter for horizontally scaled backend instances. When disabled, Socket.IO uses the in-memory adapter for a single instance.
+
+### Reliability and presence
+
+The server configures Socket.IO heartbeat, connection timeout, and broadcast acknowledgement timeouts through `SOCKET_PING_TIMEOUT_MS`, `SOCKET_PING_INTERVAL_MS`, `SOCKET_CONNECT_TIMEOUT_MS`, and `SOCKET_ACK_TIMEOUT_MS`. Broadcast payloads include an `eventId`; repeated event IDs are ignored briefly to prevent duplicate broadcasts. Presence updates are emitted to the `admin` room with connected customer, employee, admin, and active counter counts.
+
+### Emitted events
+
+| Event | Payload | Sender | Receiver |
+| --- | --- | --- | --- |
+| `queue:created` | Queue document | Queue service | Organization, branch, venue, queue, admin rooms |
+| `queue:updated` | Queue document | Queue service | Organization, branch, venue, queue, admin rooms |
+| `queue:activated` | Queue document | Queue service | Organization, branch, venue, queue, admin rooms |
+| `queue:paused` | Queue document | Queue service | Organization, branch, venue, queue, admin rooms |
+| `queue:resumed` | Queue document | Queue service | Organization, branch, venue, queue, admin rooms |
+| `queue:closed` | Queue document | Queue service | Organization, branch, venue, queue, admin rooms |
+| `queue:deleted` | Queue document | Queue service | Organization, branch, venue, queue, admin rooms |
+| `queue-entry:customer-joined` | Queue entry document | Queue entry service | Organization, branch, venue, queue, customer, admin rooms |
+| `queue-entry:customer-left` | Queue entry document | Queue entry service | Organization, branch, venue, queue, customer, admin rooms |
+| `queue-entry:cancelled` | Queue entry document | Queue entry service | Organization, branch, venue, queue, customer, admin rooms |
+| `queue-entry:transferred` | Queue entry document | Queue entry service | Queue entry service integrations | Organization, branch, venue, queue, customer, admin rooms |
+| `queue-entry:token-generated` | Queue entry token payload | Queue entry service | Queue and customer rooms |
+| `queue-processing:customer-called` | Queue entry document | Queue processing service | Organization, branch, venue, queue, counter, customer, admin rooms |
+| `queue-processing:customer-recalled` | Queue entry document | Queue processing service | Organization, branch, venue, queue, counter, customer, admin rooms |
+| `queue-processing:customer-skipped` | Queue entry document | Queue processing service | Organization, branch, venue, queue, counter, customer, admin rooms |
+| `queue-processing:service-started` | Queue entry document | Queue processing service | Organization, branch, venue, queue, counter, customer, admin rooms |
+| `queue-processing:service-completed` | Queue entry document | Queue processing service | Organization, branch, venue, queue, counter, customer, admin rooms |
+| `queue-processing:no-show` | Queue entry document | Queue processing service | Organization, branch, venue, queue, counter, customer, admin rooms |
+| `queue:live-update` | Queue length, current serving token, waiting count, status, statistics | Queue processing service | Organization, branch, venue, queue, admin rooms |
+| `presence:updated` | Connected customers, employees, admins, active counters | Socket server | Admin room |

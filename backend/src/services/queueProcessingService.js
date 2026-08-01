@@ -2,6 +2,7 @@ const entryRepo = require('../repositories/queueEntryRepository');
 const queueRepo = require('../repositories/queueRepository');
 const audit = require('./auditService');
 const { NotFoundError, ConflictError, AuthorizationError } = require('../errors');
+const socket = require('../socket');
 const { QUEUE_PROCESSING_ROLES, ACTIVE_QUEUE_ENTRY_STATUSES } = require('../constants/queueConstants');
 
 const canProcess = (user) => (user?.roleNames || []).some((role) => QUEUE_PROCESSING_ROLES.includes(role));
@@ -40,6 +41,7 @@ const recalculate = async (queueId, queue) => {
     entryRepo.averageCompletedWaitMs(queueId),
   ]);
   await queueRepo.update(queueId, queueTenant(queue), { statistics: { currentQueueLength, customersServed, averageWaitTimeMinutes: Math.round(avgWaitMs / 60000), lastCalculatedAt: new Date() } });
+  socket.broadcast(socket.EVENTS.LIVE_QUEUE_UPDATE, { organizationId: queue.organizationId, branchId: queue.branchId, venueId: queue.venueId, queueId, queueLength: currentQueueLength, waitingCount: await entryRepo.countByStatus(queueId, ['waiting']), queueStatus: queue.status, currentServingToken: active.find((e) => ['called', 'recalled', 'in_service'].includes(e.status))?.token, statistics: { currentQueueLength, customersServed, averageWaitTimeMinutes: Math.round(avgWaitMs / 60000) } });
 };
 
 const getQueue = async (queueId, user, data = {}) => { const queue = await queueRepo.findById(queueId, tenantFromUser(user, data)); if (!queue) throw new NotFoundError('Queue not found'); return queue; };
@@ -50,6 +52,8 @@ const transitionEntry = async (entry, status, user, req, fields = {}) => {
   const queue = await getQueue(entry.queueId, user, entry);
   await recalculate(entry.queueId, queue);
   await audit.record(`queueEntry.${status}`, { actor: user._id, target: entry._id, metadata: { queueId: entry.queueId, requestId: req.id }, req });
+  const eventMap = { called: socket.EVENTS.CUSTOMER_CALLED, recalled: socket.EVENTS.CUSTOMER_RECALLED, skipped: socket.EVENTS.CUSTOMER_SKIPPED, in_service: socket.EVENTS.SERVICE_STARTED, completed: socket.EVENTS.SERVICE_COMPLETED, no_show: socket.EVENTS.NO_SHOW };
+  socket.broadcast(eventMap[status] || socket.EVENTS.LIVE_QUEUE_UPDATE, updated.toObject ? updated.toObject() : updated);
   return updated;
 };
 
