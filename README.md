@@ -31,4 +31,4 @@ QueueIt supports organizations such as universities, hospitals, banks, airports,
 11. Testing
 12. Deployment
 
-Each phase must be reviewed and approved before implementation continues.
+
