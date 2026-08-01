@@ -2321,10 +2321,10 @@ paths:
       summary: Cancel entry
       responses:
         "200": { $ref: "#/components/responses/Success" }
-  /queue-entries/{queueEntryId}/serve:
+  /queue-entries/{queueEntryId}/start-service:
     post:
       tags: [QueueEntry]
-      summary: Serve customer
+      summary: Start service
       responses:
         "200": { $ref: "#/components/responses/Success" }
   /queue-entries/{queueEntryId}/skip:
@@ -2339,13 +2339,19 @@ paths:
       summary: Recall customer
       responses:
         "200": { $ref: "#/components/responses/Success" }
-  /queue-entries/{queueEntryId}/transfer:
+  /queue-entries/{queueEntryId}/no-show:
     post:
       tags: [QueueEntry]
-      summary: Transfer entry
+      summary: Mark customer no show
       responses:
         "200": { $ref: "#/components/responses/Success" }
-  /queue-entries/{queueEntryId}/complete:
+  /queue-entries/{queueEntryId}/expire:
+    post:
+      tags: [QueueEntry]
+      summary: Expire queue entry
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /queue-entries/{queueEntryId}/complete-service:
     post:
       tags: [QueueEntry]
       summary: Complete service

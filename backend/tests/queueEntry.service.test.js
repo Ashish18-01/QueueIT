@@ -2,9 +2,9 @@ process.env.NODE_ENV = 'test';
 process.env.SKIP_DB_CONNECT = 'true';
 
 jest.mock('../src/repositories/queueEntryRepository', () => ({
-  create: jest.fn(), findById: jest.fn(), findAll: jest.fn(), countActive: jest.fn(), findActiveByCustomer: jest.fn(), nextTokenNumber: jest.fn(), update: jest.fn(),
+  create: jest.fn(), findById: jest.fn(), findAll: jest.fn(), countActive: jest.fn(), findActiveByCustomer: jest.fn(), nextTokenNumber: jest.fn(), update: jest.fn(), findActiveOrdered: jest.fn(), countByStatus: jest.fn(), averageCompletedWaitMs: jest.fn(),
 }));
-jest.mock('../src/repositories/queueRepository', () => ({ findById: jest.fn() }));
+jest.mock('../src/repositories/queueRepository', () => ({ findById: jest.fn(), update: jest.fn() }));
 jest.mock('../src/services/auditService', () => ({ record: jest.fn().mockResolvedValue({}) }));
 
 const entryRepo = require('../src/repositories/queueEntryRepository');
@@ -13,11 +13,11 @@ const service = require('../src/services/queueEntryService');
 
 const user = { _id: '507f1f77bcf86cd799439011', roleNames: ['user'] };
 const manager = { _id: '507f1f77bcf86cd799439016', roleNames: ['venue_manager'] };
-const queue = { _id: '507f1f77bcf86cd799439012', id: '507f1f77bcf86cd799439012', organizationId: '507f1f77bcf86cd799439013', branchId: '507f1f77bcf86cd799439014', venueId: '507f1f77bcf86cd799439015', tokenPrefix: 'Q', status: 'active', isActive: true, maximumCapacity: 2 };
+const queue = { _id: '507f1f77bcf86cd799439012', id: '507f1f77bcf86cd799439012', organizationId: '507f1f77bcf86cd799439013', branchId: '507f1f77bcf86cd799439014', venueId: '507f1f77bcf86cd799439015', tokenPrefix: 'Q', status: 'active', isActive: true, maximumCapacity: 2, averageServiceTimeMinutes: 5 };
 const req = { id: 'req_test', ip: '127.0.0.1', get: () => 'jest' };
 
 describe('queue entry service', () => {
-  beforeEach(() => jest.clearAllMocks());
+  beforeEach(() => { jest.clearAllMocks(); entryRepo.findActiveOrdered.mockResolvedValue([]); entryRepo.countByStatus.mockResolvedValue(0); entryRepo.averageCompletedWaitMs.mockResolvedValue(0); });
 
   test('joins an active queue with sequential FIFO token', async () => {
     queueRepo.findById.mockResolvedValue(queue);
