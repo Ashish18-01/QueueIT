@@ -1,0 +1,10 @@
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { authApi } from './authApi.js';
+import { clearStoredAuth, getStoredAuth, setStoredAuth } from '../../services/tokenStorage.js';
+const stored = getStoredAuth();
+export const login = createAsyncThunk('auth/login', async (payload)=> (await authApi.login(payload)).data.data);
+export const register = createAsyncThunk('auth/register', async (payload)=> (await authApi.register(payload)).data.data);
+export const refreshSession = createAsyncThunk('auth/refresh', async (_, { rejectWithValue })=>{ try { const { refreshToken } = getStoredAuth(); if(!refreshToken) return null; return (await authApi.refresh(refreshToken)).data.data; } catch(e){ return rejectWithValue(e.response?.data); }});
+export const logout = createAsyncThunk('auth/logout', async ()=>{ const { refreshToken } = getStoredAuth(); if(refreshToken) await authApi.logout(refreshToken); return null; });
+const slice = createSlice({ name:'auth', initialState:{ user:stored.user||null, accessToken:stored.accessToken||null, refreshToken:stored.refreshToken||null, status:'idle' }, reducers:{ signedOut:(s)=>{s.user=null;s.accessToken=null;s.refreshToken=null;clearStoredAuth();}}, extraReducers:(b)=>{ const pending=(s)=>{s.status='loading'}; const rejected=(s)=>{s.status='idle'}; const fulfilled=(s,a)=>{s.status='authenticated'; if(a.payload){Object.assign(s,a.payload);setStoredAuth(a.payload);}}; b.addCase(login.pending,pending).addCase(login.fulfilled,fulfilled).addCase(login.rejected,rejected).addCase(register.pending,pending).addCase(register.fulfilled,(s)=>{s.status='registered'}).addCase(register.rejected,rejected).addCase(refreshSession.fulfilled,fulfilled).addCase(refreshSession.rejected,(s)=>{s.status='idle';clearStoredAuth();}).addCase(logout.fulfilled,(s)=>{s.status='idle';s.user=null;s.accessToken=null;s.refreshToken=null;clearStoredAuth();}); }});
+export const { signedOut } = slice.actions; export default slice.reducer;

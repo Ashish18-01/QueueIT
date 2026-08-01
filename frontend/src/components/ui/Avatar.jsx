@@ -1,0 +1,1 @@
+export function Avatar({name='User'}){return <div className="grid size-9 place-items-center rounded-full bg-slate-900 text-sm font-bold text-white dark:bg-white dark:text-slate-950">{name.slice(0,1).toUpperCase()}</div>}
