@@ -1,0 +1,2 @@
+import { Card } from '../components/ui/Card.jsx';import { EmptyState } from '../components/ui/EmptyState.jsx';
+export default function DashboardPage(){return <div className="grid gap-6"><Card><h2 className="text-2xl font-bold">Dashboard</h2><p className="mt-2 text-slate-500">Placeholder for future queue operations. Phase 9A intentionally stops here.</p></Card><EmptyState title="No queue widgets yet" description="Queue screens, analytics, notifications, and real-time updates are reserved for later phases."/></div>}

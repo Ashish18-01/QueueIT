@@ -1,0 +1,2 @@
+import { Navigate, Outlet, useLocation } from 'react-router-dom';import { useSelector } from 'react-redux';
+export function ProtectedRoute({roles}){const {user,accessToken,status}=useSelector(s=>s.auth);const loc=useLocation();if(status==='loading')return <Navigate to="/loading"/>;if(!accessToken)return <Navigate to="/login" state={{from:loc}} replace/>;if(roles?.length && !roles.includes(user?.role))return <Navigate to="/403" replace/>;return <Outlet/>}

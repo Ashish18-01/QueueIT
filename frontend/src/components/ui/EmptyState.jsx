@@ -1,0 +1,1 @@
+export function EmptyState({title='Nothing here yet',description='Content will appear here when available.'}){return <div className="rounded-2xl border border-dashed p-10 text-center"><h3 className="font-semibold">{title}</h3><p className="mt-1 text-sm text-slate-500">{description}</p></div>}

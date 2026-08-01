@@ -1,0 +1,2 @@
+import { forwardRef } from 'react';
+export const Textarea = forwardRef(function Textarea({label,error,...props}, ref){return <label className="block space-y-1.5"><span className="text-sm font-medium">{label}</span><textarea ref={ref} className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-950" {...props}/>{error&&<span className="text-xs text-red-500">{error}</span>}</label>});
