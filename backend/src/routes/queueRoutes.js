@@ -11,6 +11,7 @@ router.get('/search', requirePermission('queues:read'), validators.listQueues, a
 router.route('/').get(requirePermission('queues:read'), validators.listQueues, asyncHandler(controller.list)).post(requirePermission('queues:write'), validators.createQueue, asyncHandler(controller.create));
 router.route('/:queueId').get(requirePermission('queues:read'), validators.queueId, asyncHandler(controller.get)).put(requirePermission('queues:write'), validators.queueId, validators.updateQueue, asyncHandler(controller.update)).patch(requirePermission('queues:write'), validators.queueId, validators.updateQueue, asyncHandler(controller.update)).delete(requirePermission('queues:write'), validators.queueId, asyncHandler(controller.remove));
 router.post('/:queueId/join', validators.joinQueue, asyncHandler(entryController.join));
+router.post('/:queueId/call-next', requirePermission('queues:write'), validators.queueId, asyncHandler(entryController.callNext));
 router.post('/:queueId/activate', requirePermission('queues:write'), validators.queueId, asyncHandler(controller.activate));
 router.post('/:queueId/pause', requirePermission('queues:write'), validators.queueId, asyncHandler(controller.pause));
 router.post('/:queueId/resume', requirePermission('queues:write'), validators.queueId, asyncHandler(controller.resume));

@@ -22,6 +22,12 @@ const queueSchema = new mongoose.Schema({
   status: { type: String, enum: QUEUE_STATUSES, default: 'draft', index: true },
   priorityEnabled: { type: Boolean, default: false },
   isActive: { type: Boolean, default: false, index: true },
+  statistics: {
+    currentQueueLength: { type: Number, min: 0, default: 0 },
+    averageWaitTimeMinutes: { type: Number, min: 0, default: 0 },
+    customersServed: { type: Number, min: 0, default: 0 },
+    lastCalculatedAt: Date,
+  },
   archivedAt: Date,
   archivedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   deletedAt: { type: Date, index: true },
