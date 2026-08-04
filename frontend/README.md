@@ -41,3 +41,34 @@ src/
 ## Phase Boundary
 
 This frontend intentionally stops at the foundation. Queue screens, analytics, notifications, and live queue updates are not implemented in Phase 9A.
+
+## Phase 9B Business UI
+
+The frontend now includes role-aware business workspaces for customers, counter operators, venue managers, and organization admins. The dashboard shell reuses the authenticated layout, Redux auth state, Axios API client, Tailwind design tokens, and reusable UI primitives.
+
+### Role navigation
+
+Navigation is selected from the logged-in user's `role`:
+
+- `customer` / `user`: dashboard, join queue, active queue, queue history, profile, account settings.
+- `counter_operator`: counter dashboard, current queue, call-next queue list, queue status, profile.
+- `venue_manager`: dashboard, queue management, counter management, employee management, profile.
+- `organization_admin`: dashboard, branch management, venue management, user management, role management, queue management.
+
+### Queue API integration
+
+Business pages call the existing backend API through `src/services/businessApi.js`:
+
+- `GET /queues` with pagination, search, filtering, and sorting.
+- `GET /queues/:queueId` for queue details.
+- `POST /queues/:queueId/join` for joining queues.
+- `POST /queues/:queueId/call-next` and queue transition endpoints for operator/manager actions.
+- `GET /queue-entries`, `GET /queue-entries/:entryId`, and entry action endpoints for history and processing.
+
+### Reusable components
+
+- `DataTable` provides pagination, search, filtering, empty state, loading state, and error display.
+- `StatCard` provides responsive dashboard metric cards.
+- Profile and queue forms use React Hook Form validation and loading states.
+
+Counter, employee, branch, venue, user, and role management pages are wired into navigation with reusable table placeholders until corresponding backend APIs are available.
