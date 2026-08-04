@@ -72,3 +72,9 @@ Business pages call the existing backend API through `src/services/businessApi.j
 - Profile and queue forms use React Hook Form validation and loading states.
 
 Counter, employee, branch, venue, user, and role management pages are wired into navigation with reusable table placeholders until corresponding backend APIs are available.
+
+## Phase 9C real-time frontend
+
+The dashboard shell connects to the existing Socket.IO server after authentication and displays a live connection indicator, notification badge, and in-app notification center. Queue lifecycle and queue-entry processing events are normalized into Redux by `realtimeSlice`, then dashboard and queue pages merge the live cache with REST responses so queue position, serving token, queue length, queue status, counter status, and personal entry status update without a page refresh.
+
+Supported backend events include queue created, updated, deleted, paused, resumed, closed, customer joined, left, called, recalled, skipped, completed, entry cancelled, live queue updates, presence updates, and socket errors. Disconnects and backend socket errors produce user-friendly toast messages while REST reloads keep live state consistent with API responses.
