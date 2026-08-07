@@ -1,20 +1,15 @@
-import { lazy, Suspense } from 'react';
 import { createBrowserRouter } from 'react-router-dom';
 import PublicLayout from '../layouts/PublicLayout.jsx';
 import AuthLayout from '../layouts/AuthLayout.jsx';
 import DashboardLayout from '../layouts/DashboardLayout.jsx';
 import LandingPage from '../pages/LandingPage.jsx';
 import DashboardPage from '../pages/business/DashboardPage.jsx';
-import { Loader } from '../components/ui/Loader.jsx';
 import ProfilePage from '../pages/ProfilePage.jsx';
 import { Forbidden, LoadingPage, NotFound } from '../pages/StatusPages.jsx';
 import { ForgotPasswordPage, LoginPage, RegisterPage, ResetPasswordPage } from '../features/auth/AuthForms.jsx';
 import { BranchManagementPage, CounterManagementPage, EmployeeManagementPage, QueueStatusPage, RoleManagementPage, UserManagementPage, VenueManagementPage } from '../pages/business/AdminPages.jsx';
 import { CurrentQueuePage, EntryDetailsPage, JoinQueuePage, QueueDetailsPage, QueueHistoryPage, QueueListPage } from '../pages/business/QueuePages.jsx';
 import { ProtectedRoute } from './ProtectedRoute.jsx';
-
-const AnalyticsDashboardPage = lazy(() => import('../features/analytics/AnalyticsDashboardPage.jsx'));
-const LazyAnalytics = () => <Suspense fallback={<Loader />}><AnalyticsDashboardPage /></Suspense>;
 
 export const router = createBrowserRouter([
   { element: <PublicLayout />, children: [{ path: '/', element: <LandingPage /> }] },
@@ -35,7 +30,6 @@ export const router = createBrowserRouter([
     { path: '/dashboard/venues', element: <VenueManagementPage /> },
     { path: '/dashboard/users', element: <UserManagementPage /> },
     { path: '/dashboard/roles', element: <RoleManagementPage /> },
-    { path: '/dashboard/analytics', element: <LazyAnalytics /> },
     { path: '/dashboard/profile', element: <ProfilePage /> },
     { path: '/dashboard/settings', element: <ProfilePage /> },
   ] }] },

@@ -78,14 +78,3 @@ Counter, employee, branch, venue, user, and role management pages are wired into
 The dashboard shell connects to the existing Socket.IO server after authentication and displays a live connection indicator, notification badge, and in-app notification center. Queue lifecycle and queue-entry processing events are normalized into Redux by `realtimeSlice`, then dashboard and queue pages merge the live cache with REST responses so queue position, serving token, queue length, queue status, counter status, and personal entry status update without a page refresh.
 
 Supported backend events include queue created, updated, deleted, paused, resumed, closed, customer joined, left, called, recalled, skipped, completed, entry cancelled, live queue updates, presence updates, and socket errors. Disconnects and backend socket errors produce user-friendly toast messages while REST reloads keep live state consistent with API responses.
-
-## Analytics Dashboard
-
-Phase 10A adds a protected `/dashboard/analytics` workspace for customers, counter operators, venue managers, organization admins, and super admins. The page reuses the existing queue and queue-entry APIs, Redux realtime socket state, cards, tables, filters, and theme styles. Analytics are derived client-side when a dedicated backend analytics endpoint is not available.
-
-Included capabilities:
-- KPI cards for total queues, active queues, completed queues, waiting customers, customers served today, average wait time, average service time, throughput, active counters, and online employees.
-- Recharts visualizations for daily, weekly, monthly activity, peak hours, wait/service times, completion rate, counter performance, employee performance, and satisfaction placeholders.
-- Reports for daily, weekly, monthly, queue, counter, and employee performance with reusable searchable/sortable tables.
-- Filters for date range, organization, branch, venue, queue, and counter with reset support.
-- CSV export through `analyticsExportService`, which supports registering additional formats later.
