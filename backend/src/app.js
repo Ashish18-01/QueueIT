@@ -9,15 +9,15 @@ const { config } = require('./config/env');
 const routes = require('./routes');
 const requestId = require('./middlewares/requestId');
 const httpLogger = require('./middlewares/httpLogger');
-const { apiLimiter, sanitizeRequest, preventParameterPollution } = require('./middlewares/security');
+const { apiLimiter, corsOptions, helmetOptions, sanitizeRequest, preventParameterPollution } = require('./middlewares/security');
 const { notFoundHandler, errorHandler } = require('./middlewares/errorHandler');
 const { loadOpenApiSpec } = require('./config/swagger');
 
 const app = express();
 app.set('trust proxy', config.app.trustProxy);
 app.use(requestId);
-app.use(helmet());
-app.use(cors({ origin: config.cors.origin === '*' ? true : config.cors.origin.split(','), credentials: config.cors.credentials }));
+app.use(helmet(helmetOptions));
+app.use(cors(corsOptions));
 app.use(compression());
 app.use(cookieParser());
 app.use(express.json({ limit: '1mb' }));

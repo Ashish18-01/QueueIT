@@ -46,6 +46,7 @@ const validateEnv = () => {
     if (!process.env.JWT_SECRET) missing.push('JWT_SECRET');
     if (!process.env.REFRESH_TOKEN_SECRET) missing.push('REFRESH_TOKEN_SECRET');
     if (!process.env.MONGODB_URI) missing.push('MONGODB_URI');
+    if (config.cors.credentials && config.cors.origin === '*') missing.push('CORS_ORIGIN');
   }
   if (missing.length) throw new Error(`Missing required environment variables: ${missing.join(', ')}`);
 };
