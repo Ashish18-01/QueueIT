@@ -1,0 +1,13 @@
+const express = require('express');
+const { authenticate } = require('../middlewares/auth');
+const controller = require('../controllers/notificationController');
+const router = express.Router();
+router.use(authenticate);
+router.get('/', controller.list);
+router.get('/preferences', controller.preferences);
+router.put('/preferences', controller.updatePreferences);
+router.patch('/read-all', controller.markAllRead);
+router.patch('/:id/read', controller.markRead);
+router.delete('/clear', controller.clear);
+router.delete('/:id', controller.remove);
+module.exports = router;
