@@ -7,6 +7,7 @@ import LandingPage from '../pages/LandingPage.jsx';
 import DashboardPage from '../pages/business/DashboardPage.jsx';
 import { Loader } from '../components/ui/Loader.jsx';
 import ProfilePage from '../pages/ProfilePage.jsx';
+import NotificationHistoryPage from '../pages/notifications/NotificationHistoryPage.jsx';
 import { Forbidden, LoadingPage, NotFound } from '../pages/StatusPages.jsx';
 import { ForgotPasswordPage, LoginPage, RegisterPage, ResetPasswordPage } from '../features/auth/AuthForms.jsx';
 import { BranchManagementPage, CounterManagementPage, EmployeeManagementPage, QueueStatusPage, RoleManagementPage, UserManagementPage, VenueManagementPage } from '../pages/business/AdminPages.jsx';
@@ -38,6 +39,7 @@ export const router = createBrowserRouter([
     { path: '/dashboard/analytics', element: <LazyAnalytics /> },
     { path: '/dashboard/profile', element: <ProfilePage /> },
     { path: '/dashboard/settings', element: <ProfilePage /> },
+    { path: '/dashboard/notifications', element: <NotificationHistoryPage /> },
   ] }] },
   { path: '/403', element: <Forbidden /> }, { path: '/loading', element: <LoadingPage /> }, { path: '*', element: <NotFound /> },
 ]);

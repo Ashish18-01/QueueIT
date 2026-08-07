@@ -89,3 +89,11 @@ Included capabilities:
 - Reports for daily, weekly, monthly, queue, counter, and employee performance with reusable searchable/sortable tables.
 - Filters for date range, organization, branch, venue, queue, and counter with reset support.
 - CSV export through `analyticsExportService`, which supports registering additional formats later.
+
+## Notification Platform
+
+The dashboard includes a notification center in the top navigation, a notification history page at `/dashboard/notifications`, per-user notification preferences, and optional browser notifications. The platform reuses Redux and the existing Socket.IO client; it does not poll for live updates.
+
+Notification history supports pagination metadata from the API, search, type/status/date filters, and newest/oldest sorting. Users can mark individual notifications as read, mark all notifications as read, delete a notification, or clear the full notification history.
+
+Browser notifications use the Web Notification API. Users can enable them from the preferences panel, where the app requests permission and gracefully falls back to in-app notifications when permission is denied or unsupported.
