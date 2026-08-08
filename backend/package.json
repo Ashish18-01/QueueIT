@@ -13,7 +13,7 @@
     "test": "jest --runInBand",
     "test:coverage": "jest --coverage --runInBand",
     "docs": "node scripts/validate-openapi.js",
-    "prepare": "husky"
+    "prepare": "husky || true"
   },
   "dependencies": {
     "bcrypt": "^5.1.1",
