@@ -13,14 +13,14 @@ QueueIt is an enterprise-grade, multi-tenant virtual queue management platform f
 
 ## Technology Stack
 
-| Area | Technology |
-| --- | --- |
-| Backend | Node.js, Express, Mongoose, MongoDB, Socket.IO |
-| Frontend | React, Vite, Redux Toolkit, React Router, Tailwind CSS |
-| Realtime | Socket.IO with optional Redis adapter |
-| Security | Helmet, CORS, rate limiting, Mongo sanitization, HPP protection, bcrypt, JWT |
-| Testing | Jest, Supertest, Vitest, React Testing Library |
-| Documentation | Markdown guides and OpenAPI YAML |
+| Area          | Technology                                                                   |
+| ------------- | ---------------------------------------------------------------------------- |
+| Backend       | Node.js, Express, Mongoose, MongoDB, Socket.IO                               |
+| Frontend      | React, Vite, Redux Toolkit, React Router, Tailwind CSS                       |
+| Realtime      | Socket.IO with optional Redis adapter                                        |
+| Security      | Helmet, CORS, rate limiting, Mongo sanitization, HPP protection, bcrypt, JWT |
+| Testing       | Jest, Supertest, Vitest, React Testing Library                               |
+| Documentation | Markdown guides and OpenAPI YAML                                             |
 
 ## Architecture Summary
 
@@ -93,6 +93,23 @@ npm run dev
 ```
 
 The frontend expects the backend API and Socket.IO origins to be configured through Vite environment variables.
+
+## Docker Setup
+
+QueueIt includes Docker Compose support for the frontend, backend, MongoDB, Redis, and Nginx.
+
+```bash
+cp .env.example .env
+docker compose up --build
+```
+
+The application is served through Nginx at `http://localhost` by default. Stop the stack with:
+
+```bash
+docker compose down
+```
+
+See [docs/docker/README.md](docs/docker/README.md) for Docker prerequisites, environment setup, build/start/stop commands, health checks, and troubleshooting.
 
 ## Testing
 
