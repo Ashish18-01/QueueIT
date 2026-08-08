@@ -117,6 +117,16 @@ See [docs/docker/README.md](docs/docker/README.md) for Docker prerequisites, env
 - Frontend: `cd frontend && npm test` runs Vitest and React Testing Library tests for UI, routing, Redux, analytics, and notifications.
 - API documentation validation: `cd backend && npm run docs` validates the OpenAPI specification.
 
+## CI/CD Pipeline
+
+QueueIt uses GitHub Actions for continuous integration. The workflow is defined in [`.github/workflows/ci.yml`](.github/workflows/ci.yml) and is intentionally limited to verification in this phase; it does not deploy to production.
+
+On pull requests and pushes to `main`, CI checks out the repository, sets up Node.js 22 with npm dependency caching, installs backend and frontend dependencies with `npm ci`, runs backend and frontend tests, runs configured lint checks, builds the frontend, and verifies the production Docker images with the existing Docker Compose configuration. Any failing required test, lint, build, or Docker image build step fails the GitHub Actions check.
+
+Future deployment workflows will require secrets to be configured in GitHub repository or environment settings rather than committed to the repository. Expected deployment secrets include secure JWT and refresh-token secrets, MongoDB connection credentials, Redis connection credentials when Redis is enabled, allowed production origins, OAuth credentials if enabled, API keys for third-party integrations, registry credentials for publishing images, and hosting-provider deployment credentials.
+
+To inspect a failed workflow run, open the repository on GitHub, select the **Actions** tab, choose the failed **CI** run, and expand the failed job step to review logs. Re-run the workflow from GitHub after pushing a fix. Configure branch protection for `main` in repository settings to require the CI check before merging when permissions allow.
+
 ## API Documentation
 
 - API documentation index: [docs/api/README.md](docs/api/README.md)
