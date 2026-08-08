@@ -1,0 +1,115 @@
+services:
+  mongodb:
+    image: mongo:7
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_DATABASE: ${MONGO_INITDB_DATABASE:-queueit}
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - queueit
+    healthcheck:
+      test:
+        ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    networks:
+      - queueit
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      APP_NAME: ${APP_NAME:-QueueIt API}
+      APP_VERSION: ${APP_VERSION:-0.1.0}
+      PORT: 5000
+      HOST: 0.0.0.0
+      TRUST_PROXY: "true"
+      API_PREFIX: /api
+      API_VERSION: v1
+      MONGODB_URI: mongodb://mongodb:27017/${MONGO_INITDB_DATABASE:-queueit}
+      REDIS_URL: redis://redis:6379
+      REDIS_ENABLED: ${REDIS_ENABLED:-true}
+      JWT_SECRET: ${JWT_SECRET:-replace-with-a-secure-jwt-secret}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-15m}
+      REFRESH_TOKEN_SECRET: ${REFRESH_TOKEN_SECRET:-replace-with-a-secure-refresh-secret}
+      REFRESH_TOKEN_EXPIRES_IN: ${REFRESH_TOKEN_EXPIRES_IN:-7d}
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost}
+      CORS_CREDENTIALS: ${CORS_CREDENTIALS:-true}
+      SOCKET_CORS_ORIGIN: ${SOCKET_CORS_ORIGIN:-http://localhost}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      LOG_TO_FILE: ${LOG_TO_FILE:-false}
+      FEATURE_REGISTRATION_ENABLED: ${FEATURE_REGISTRATION_ENABLED:-true}
+      FEATURE_QUEUE_ENABLED: ${FEATURE_QUEUE_ENABLED:-false}
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - queueit
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:5000/api/v1/ready').then((r) => { if (!r.ok) process.exit(1); }).catch(() => process.exit(1));",
+        ]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-/api/v1}
+        VITE_SOCKET_URL: ${VITE_SOCKET_URL:-http://localhost}
+    restart: unless-stopped
+    depends_on:
+      - backend
+    networks:
+      - queueit
+
+  nginx:
+    image: nginx:1.27-alpine
+    restart: unless-stopped
+    ports:
+      - "${NGINX_PORT:-80}:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      frontend:
+        condition: service_started
+      backend:
+        condition: service_healthy
+    networks:
+      - queueit
+
+networks:
+  queueit:
+    driver: bridge
+
+volumes:
+  mongodb_data:
+  redis_data:
