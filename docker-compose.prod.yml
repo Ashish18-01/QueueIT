@@ -15,7 +15,7 @@ services:
       SOCKET_CORS_ORIGIN: ${SOCKET_CORS_ORIGIN:?Set SOCKET_CORS_ORIGIN to the public application origin}
       LOG_LEVEL: ${LOG_LEVEL:-info}
       LOG_TO_FILE: ${LOG_TO_FILE:-false}
-    depends_on: []
+    depends_on: !reset []
 
   frontend:
     build:
