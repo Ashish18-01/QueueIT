@@ -1,6 +1,6 @@
 # Docker Guide
 
-This guide describes how to run the QueueIt MERN application with Docker Compose. The Compose stack contains the React/Vite frontend, Express/Socket.IO backend, MongoDB, Redis, and an edge Nginx reverse proxy.
+This guide describes how to run the QueueIt MERN application with Docker Compose. The Compose stack contains the React/Vite frontend, Express/Socket.IO backend, MongoDB, Redis, and an edge Nginx reverse proxy. For production deployment preparation with managed MongoDB and Redis, see `docs/deployment/production.md`.
 
 ## Prerequisites
 
