@@ -59,6 +59,8 @@ jobs:
         env:
           JWT_SECRET: ci-production-compose-jwt-secret
           REFRESH_TOKEN_SECRET: ci-production-compose-refresh-secret
+          MONGODB_URI: mongodb://mongodb:27017/queueit
+          REDIS_URL: redis://redis:6379
           CORS_ORIGIN: https://queueit.example.com
           SOCKET_CORS_ORIGIN: https://queueit.example.com
           VITE_SOCKET_URL: https://queueit.example.com

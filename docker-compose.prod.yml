@@ -14,6 +14,8 @@ services:
       TRUST_PROXY: "true"
       JWT_SECRET: ${JWT_SECRET:?Set a secure JWT_SECRET for production}
       REFRESH_TOKEN_SECRET: ${REFRESH_TOKEN_SECRET:?Set a secure REFRESH_TOKEN_SECRET for production}
+      MONGODB_URI: ${MONGODB_URI:?Set the production MongoDB connection URI}
+      REDIS_URL: ${REDIS_URL:?Set the production Redis connection URI}
       CORS_ORIGIN: ${CORS_ORIGIN:?Set the public HTTPS origin for production CORS}
       SOCKET_CORS_ORIGIN: ${SOCKET_CORS_ORIGIN:?Set the public HTTPS origin for production Socket.IO CORS}
       REDIS_ENABLED: ${REDIS_ENABLED:-true}
