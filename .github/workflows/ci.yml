@@ -57,3 +57,6 @@ jobs:
 
       - name: Build Docker images
         run: docker compose build backend frontend
+
+      - name: Validate production Compose configuration
+        run: docker compose -f docker-compose.yml -f docker-compose.prod.yml --env-file .env.example config >/dev/null
