@@ -55,5 +55,14 @@ jobs:
         working-directory: frontend
         run: npm run build
 
+      - name: Validate production Compose configuration
+        env:
+          JWT_SECRET: ci-production-compose-jwt-secret
+          REFRESH_TOKEN_SECRET: ci-production-compose-refresh-secret
+          CORS_ORIGIN: https://queueit.example.com
+          SOCKET_CORS_ORIGIN: https://queueit.example.com
+          VITE_SOCKET_URL: https://queueit.example.com
+        run: docker compose -f docker-compose.yml -f docker-compose.prod.yml config
+
       - name: Build Docker images
         run: docker compose build backend frontend

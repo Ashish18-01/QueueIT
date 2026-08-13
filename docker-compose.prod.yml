@@ -1,0 +1,32 @@
+# Production overrides for the QueueIt Docker Compose stack.
+#
+# Usage:
+#   docker compose -f docker-compose.yml -f docker-compose.prod.yml config
+#   docker compose -f docker-compose.yml -f docker-compose.prod.yml up --build -d
+#
+# Required variables are intentionally enforced by Compose interpolation so a
+# production stack cannot silently start with placeholder secrets or origins.
+
+services:
+  backend:
+    environment:
+      NODE_ENV: production
+      TRUST_PROXY: "true"
+      JWT_SECRET: ${JWT_SECRET:?Set a secure JWT_SECRET for production}
+      REFRESH_TOKEN_SECRET: ${REFRESH_TOKEN_SECRET:?Set a secure REFRESH_TOKEN_SECRET for production}
+      CORS_ORIGIN: ${CORS_ORIGIN:?Set the public HTTPS origin for production CORS}
+      SOCKET_CORS_ORIGIN: ${SOCKET_CORS_ORIGIN:?Set the public HTTPS origin for production Socket.IO CORS}
+      REDIS_ENABLED: ${REDIS_ENABLED:-true}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      LOG_TO_FILE: ${LOG_TO_FILE:-false}
+      FEATURE_REGISTRATION_ENABLED: ${FEATURE_REGISTRATION_ENABLED:-false}
+
+  frontend:
+    build:
+      args:
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-/api/v1}
+        VITE_SOCKET_URL: ${VITE_SOCKET_URL:?Set the public HTTPS origin for production Socket.IO}
+
+  nginx:
+    ports:
+      - "${NGINX_PORT:-80}:80"
