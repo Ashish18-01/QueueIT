@@ -122,3 +122,18 @@ Rebuild the frontend after changing any `VITE_*` variable because Vite embeds th
 ```bash
 docker compose up --build frontend nginx
 ```
+
+## Production Compose validation
+
+Production deployments should include the production override file and validate
+the fully rendered Compose configuration before starting the stack:
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.prod.yml config
+docker compose -f docker-compose.yml -f docker-compose.prod.yml up --build -d
+```
+
+The production override requires secure values for `JWT_SECRET`,
+`REFRESH_TOKEN_SECRET`, `CORS_ORIGIN`, `SOCKET_CORS_ORIGIN`, and
+`VITE_SOCKET_URL` so the stack cannot be rendered with placeholder
+authentication secrets or unsafe browser origins.

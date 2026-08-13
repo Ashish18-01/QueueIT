@@ -111,6 +111,14 @@ docker compose down
 
 See [docs/docker/README.md](docs/docker/README.md) for Docker prerequisites, environment setup, build/start/stop commands, health checks, and troubleshooting.
 
+For production Compose deployments, validate and run the stack with the
+production override after setting secure secrets and public HTTPS origins:
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.prod.yml config
+docker compose -f docker-compose.yml -f docker-compose.prod.yml up --build -d
+```
+
 ## Testing
 
 - Backend: `cd backend && npm test` runs Jest/Supertest coverage for API, authentication, queues, and socket behavior.
@@ -122,6 +130,10 @@ See [docs/docker/README.md](docs/docker/README.md) for Docker prerequisites, env
 QueueIt uses GitHub Actions for continuous integration. The workflow is defined in [`.github/workflows/ci.yml`](.github/workflows/ci.yml) and is intentionally limited to verification in this phase; it does not deploy to production.
 
 On pull requests and pushes to `main`, CI checks out the repository, sets up Node.js 22 with npm dependency caching, installs backend and frontend dependencies with `npm ci`, runs backend and frontend tests, runs configured lint checks, builds the frontend, and verifies the production Docker images with the existing Docker Compose configuration. Any failing required test, lint, build, or Docker image build step fails the GitHub Actions check.
+
+CI also renders the production Compose configuration with non-secret placeholder
+CI values to catch syntax or interpolation regressions before Docker image
+builds run.
 
 Future deployment workflows will require secrets to be configured in GitHub repository or environment settings rather than committed to the repository. Expected deployment secrets include secure JWT and refresh-token secrets, MongoDB connection credentials, Redis connection credentials when Redis is enabled, allowed production origins, OAuth credentials if enabled, API keys for third-party integrations, registry credentials for publishing images, and hosting-provider deployment credentials.
 
