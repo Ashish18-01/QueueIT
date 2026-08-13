@@ -1,6 +1,6 @@
 # Deployment Architecture
 
-QueueIt production deployment uses containers behind a reverse proxy, managed PostgreSQL, managed Redis, object storage, CDN, centralized logging, monitoring, and automated CI/CD.
+QueueIt production deployment uses containers behind a reverse proxy, managed MongoDB, managed Redis, CDN or reverse proxy routing, centralized logging, monitoring, and automated CI/CD.
 
 ## Deployment Diagram
 
@@ -14,7 +14,7 @@ flowchart LR
     CDN --> Proxy[Reverse Proxy]
     Proxy --> API[Backend API Containers]
     Proxy --> RT[Realtime Gateway]
-    API --> PG[(Managed PostgreSQL)]
+    API --> Mongo[(Managed MongoDB)]
     API --> Redis[(Managed Redis)]
     API --> Queue[(Managed Message Queue)]
     Queue --> Workers[Worker Containers]
@@ -24,18 +24,18 @@ flowchart LR
     Workers --> Logs
     API --> Metrics[Monitoring/Tracing]
     Workers --> Metrics
-    PG --> Backups[Automated Backups]
+    Mongo --> Backups[Automated Backups]
 ```
 
 ## Production Elements
 
 - **Frontend:** Deployed to CDN-backed hosting or container platform.
 - **Backend:** Horizontally scalable API containers.
-- **Database:** Managed PostgreSQL with point-in-time recovery.
+- **Database:** Managed MongoDB with backups and point-in-time recovery where supported.
 - **Redis:** Managed Redis for cache, rate limits, and locks.
 - **Reverse proxy:** TLS termination, routing, compression, request limits.
 - **CDN/WAF:** Static asset acceleration and edge protection.
-- **Docker:** Immutable runtime artifact for API and workers.
+- **Docker:** Immutable runtime artifacts for the frontend, API, MongoDB, Redis, and Nginx services.
 - **Container registry:** Stores versioned images.
 - **CI/CD:** Lint, test, build, scan, migrate, deploy, and rollback.
 - **Cloud provider:** AWS preferred baseline; Azure is viable alternative.

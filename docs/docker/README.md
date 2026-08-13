@@ -19,8 +19,8 @@ cp .env.example .env
 Update `.env` before production use:
 
 - Replace `JWT_SECRET` and `REFRESH_TOKEN_SECRET` with long, random values.
-- Keep `MONGODB_URI` managed by Compose unless using an external database.
-- Keep `REDIS_ENABLED=true` to enable the Socket.IO Redis adapter in the container stack.
+- Set `MONGODB_URI` to the production MongoDB connection string when using an external or managed database.
+- Set `REDIS_URL` to the production Redis connection string and keep `REDIS_ENABLED=true` to enable the Socket.IO Redis adapter in the container stack.
 - Use same-origin frontend defaults (`VITE_API_BASE_URL=/api/v1`) so browser API traffic flows through Nginx.
 - Set `CORS_ORIGIN` and `SOCKET_CORS_ORIGIN` to the public origin serving the app.
 
@@ -134,6 +134,6 @@ docker compose -f docker-compose.yml -f docker-compose.prod.yml up --build -d
 ```
 
 The production override requires secure values for `JWT_SECRET`,
-`REFRESH_TOKEN_SECRET`, `CORS_ORIGIN`, `SOCKET_CORS_ORIGIN`, and
-`VITE_SOCKET_URL` so the stack cannot be rendered with placeholder
+`REFRESH_TOKEN_SECRET`, `MONGODB_URI`, `REDIS_URL`, `CORS_ORIGIN`,
+`SOCKET_CORS_ORIGIN`, and `VITE_SOCKET_URL` so the stack cannot be rendered with placeholder
 authentication secrets or unsafe browser origins.
