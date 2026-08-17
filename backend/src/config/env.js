@@ -36,6 +36,7 @@ const config = {
   cors: { origin: process.env.CORS_ORIGIN || '*', credentials: bool(process.env.CORS_CREDENTIALS, true) },
   socket: { corsOrigin: process.env.SOCKET_CORS_ORIGIN || '*', pingTimeoutMs: num(process.env.SOCKET_PING_TIMEOUT_MS, 20000), pingIntervalMs: num(process.env.SOCKET_PING_INTERVAL_MS, 25000), connectTimeoutMs: num(process.env.SOCKET_CONNECT_TIMEOUT_MS, 45000), ackTimeoutMs: num(process.env.SOCKET_ACK_TIMEOUT_MS, 5000) },
   logging: { level: process.env.LOG_LEVEL || 'info', toFile: bool(process.env.LOG_TO_FILE, true), dir: process.env.LOG_DIR || 'logs' },
+  email: { host: process.env.SMTP_HOST || '', port: num(process.env.SMTP_PORT, 587), user: process.env.SMTP_USER || '', password: process.env.SMTP_PASSWORD || '', from: process.env.SMTP_FROM || 'no-reply@queueit.local', secure: bool(process.env.SMTP_SECURE), startTls: bool(process.env.SMTP_STARTTLS, true), heloName: process.env.SMTP_HELO_NAME || 'queueit.local', timeoutMs: num(process.env.SMTP_TIMEOUT_MS, 10000), passwordResetUrl: process.env.PASSWORD_RESET_URL || 'http://localhost:3000/reset-password' },
   rateLimit: { windowMs: num(process.env.RATE_LIMIT_WINDOW_MS, 900000), max: num(process.env.RATE_LIMIT_MAX, 100) },
   features: { registrationEnabled: bool(process.env.FEATURE_REGISTRATION_ENABLED, true), queueEnabled: bool(process.env.FEATURE_QUEUE_ENABLED) },
 };
@@ -47,6 +48,8 @@ const validateEnv = () => {
     if (!process.env.REFRESH_TOKEN_SECRET) missing.push('REFRESH_TOKEN_SECRET');
     if (!process.env.MONGODB_URI) missing.push('MONGODB_URI');
     if (config.cors.credentials && config.cors.origin === '*') missing.push('CORS_ORIGIN');
+    if (!process.env.SMTP_HOST) missing.push('SMTP_HOST');
+    if (!process.env.SMTP_FROM) missing.push('SMTP_FROM');
   }
   if (missing.length) throw new Error(`Missing required environment variables: ${missing.join(', ')}`);
 };
