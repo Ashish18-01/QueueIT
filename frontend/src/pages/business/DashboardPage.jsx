@@ -16,8 +16,9 @@ export default function DashboardPage() {
   const dispatch = useDispatch();
   const { user } = useSelector((s) => s.auth);
   const { queues: liveQueues = {}, entries = {}, presence = {}, connected = false, lastEventAt = null } = useSelector((s) => s.realtime || {});
-  const role = user?.role || 'customer';
-  const { data, loading, error, reload } = useApiResource(() => businessApi.listQueues({ limit: 10, sortBy: 'createdAt', sortOrder: 'desc' }), []);
+  const role = user?.role || user?.roleNames?.[0] || 'customer';
+  const canReadQueues = !isCustomer(role);
+  const { data, loading, error, reload } = useApiResource(() => (canReadQueues ? businessApi.listQueues({ limit: 10, sortBy: 'createdAt', sortOrder: 'desc' }) : Promise.resolve({ data: [] })), [canReadQueues]);
   useEffect(() => { if (lastEventAt) reload().finally(() => dispatch(refreshSettled())); }, [lastEventAt, reload, dispatch]);
   const restQueues = data?.items || data || [];
   const queues = useMemo(() => restQueues.map((q) => ({ ...q, ...(liveQueues[q._id || q.id] || {}) })).concat(Object.values(liveQueues).filter((q) => !restQueues.some((r) => (r._id || r.id) === (q._id || q.id)))), [restQueues, liveQueues]);

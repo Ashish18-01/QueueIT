@@ -31,7 +31,8 @@ exports.join = async (queueId, data, user, req) => {
   await audit.record('queueEntry.joined', { actor: user._id, target: entry.id, metadata: { queueId: queue.id, token: entry.token, requestId: req.id }, req });
   socket.broadcast(socket.EVENTS.CUSTOMER_JOINED, entry.toObject ? entry.toObject() : entry);
   socket.broadcast(socket.EVENTS.TOKEN_GENERATED, entry.toObject ? entry.toObject() : entry, { rooms: [socket.roomsForResource(entry)[3], `customer:${entry.customerId}`].filter(Boolean) });
-  return entry;
+  const result = entry.toJSON ? entry.toJSON() : entry;
+  return { ...result, queueName: queue.name, queueStatus: queue.status };
 };
 exports.leave = async (id, user, req) => {
   const entry = await exports.get(id, user);
