@@ -30,7 +30,7 @@ Logout revokes the current refresh-token session. Logout-all revokes every activ
 
 Passwords must be at least 12 characters and include lowercase, uppercase, numeric, and special characters. bcrypt hashes passwords with 12 rounds. Password history prevents reuse during reset/change flows, and password metadata supports expiration policies.
 
-Registration returns a development-friendly verification token. Production deployments should deliver that token through email. Forgot-password similarly returns a reset token for test/dev integration and should be wired to SMTP before public launch.
+Registration returns a development-friendly verification token. Forgot-password generates a one-time reset token, sends a reset link by SMTP when `SMTP_HOST` is configured, and returns only the anti-enumeration `{ sent: true }` response. Local automated tests mock email delivery and do not send real email.
 
 ## RBAC model
 
@@ -48,6 +48,8 @@ Required in production:
 - `REFRESH_TOKEN_SECRET` (reserved for deployments that use signed refresh tokens)
 - `REFRESH_TOKEN_EXPIRES_IN` (default `7d`)
 - `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` / `GOOGLE_CALLBACK_URL` for Google OAuth integrations
+- `SMTP_HOST`, `SMTP_PORT`, `SMTP_FROM`, and provider credentials (`SMTP_USER` / `SMTP_PASSWORD`) for password-reset email delivery
+- `PASSWORD_RESET_URL` pointing at the frontend reset-password route, for example `https://app.example.com/reset-password`
 - `CORS_ORIGIN` and `CORS_CREDENTIALS`
 
 ## Setup

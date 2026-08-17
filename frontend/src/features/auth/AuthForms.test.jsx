@@ -6,6 +6,7 @@ import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import authReducer from './authSlice.js';
 import { LoginPage, RegisterPage, ResetPasswordPage } from './AuthForms.jsx';
+import { passwordRules } from '../../utils/validation.js';
 import { authApi } from './authApi.js';
 
 vi.mock('./authApi.js', () => ({
@@ -65,6 +66,12 @@ describe('authentication forms', () => {
     await waitFor(() => expect(authApi.login).toHaveBeenCalledWith({ email: 'user@example.com', password: 'StrongerPass1!' }));
     await waitFor(() => expect(screen.getByTestId('location')).toHaveTextContent('/dashboard'));
     expect(JSON.parse(localStorage.getItem('queueit-auth'))).toMatchObject({ accessToken: 'access', refreshToken: 'refresh' });
+  });
+
+  test('registration password rules mirror the backend strength policy', () => {
+    expect(passwordRules.minLength.value).toBe(12);
+    expect(passwordRules.pattern.value.test('StrongerPass1!')).toBe(true);
+    expect(passwordRules.pattern.value.test('weakpassword')).toBe(false);
   });
 
   test('register submits valid account details and returns to login', async () => {
