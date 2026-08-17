@@ -1,0 +1,11 @@
+const express = require('express');
+const controller = require('../controllers/organizationController');
+const { authenticate, requirePermission } = require('../middlewares/auth');
+const validators = require('../validators/organizationValidators');
+const asyncHandler = require('../utils/asyncHandler');
+const router = express.Router();
+router.use(authenticate);
+router.route('/').get(requirePermission('organizations:read'), asyncHandler(controller.mine)).post(requirePermission('organizations:write'), validators.create, asyncHandler(controller.create));
+router.get('/:organizationId', requirePermission('organizations:read'), validators.organizationId, asyncHandler(controller.get));
+router.get('/:organizationId/dashboard', requirePermission('organizations:read'), validators.organizationId, asyncHandler(controller.dashboard));
+module.exports = router;

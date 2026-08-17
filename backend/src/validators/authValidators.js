@@ -4,7 +4,7 @@ const validate = (rules) => [...rules, (req, _res, next) => { const result = val
 const password = body('password').isString().isLength({ min: 12 });
 module.exports = {
   validate,
-  register: validate([body('email').isEmail(), body('name').trim().isLength({ min: 1 }), password]),
+  register: validate([body('email').isEmail(), body('name').trim().isLength({ min: 1 }), body('accountType').optional().isIn(['customer', 'organizer']), password]),
   login: validate([body('email').isEmail(), body('password').isString().notEmpty()]),
   tokenBody: validate([body('refreshToken').optional().isString()]),
   forgot: validate([body('email').isEmail()]),

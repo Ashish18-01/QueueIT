@@ -11,7 +11,8 @@ import NotificationHistoryPage from '../pages/notifications/NotificationHistoryP
 import { Forbidden, LoadingPage, NotFound } from '../pages/StatusPages.jsx';
 import { ForgotPasswordPage, LoginPage, RegisterPage, ResetPasswordPage } from '../features/auth/AuthForms.jsx';
 import { BranchManagementPage, CounterManagementPage, EmployeeManagementPage, QueueStatusPage, RoleManagementPage, UserManagementPage, VenueManagementPage } from '../pages/business/AdminPages.jsx';
-import { CurrentQueuePage, EntryDetailsPage, JoinQueuePage, QueueDetailsPage, QueueHistoryPage, QueueListPage } from '../pages/business/QueuePages.jsx';
+import { CreateQueuePage, CurrentQueuePage, EntryDetailsPage, JoinQueuePage, QueueDetailsPage, QueueHistoryPage, QueueListPage } from '../pages/business/QueuePages.jsx';
+import { OrganizationDashboardPage, OrganizationListPage, OrganizationOnboardingPage } from '../pages/business/OrganizationPages.jsx';
 import { ProtectedRoute } from './ProtectedRoute.jsx';
 
 const AnalyticsDashboardPage = lazy(() => import('../features/analytics/AnalyticsDashboardPage.jsx'));
@@ -22,7 +23,11 @@ export const router = createBrowserRouter([
   { element: <AuthLayout />, children: [{ path: '/login', element: <LoginPage /> }, { path: '/register', element: <RegisterPage /> }, { path: '/forgot-password', element: <ForgotPasswordPage /> }, { path: '/reset-password', element: <ResetPasswordPage /> }] },
   { element: <ProtectedRoute />, children: [{ element: <DashboardLayout />, children: [
     { path: '/dashboard', element: <DashboardPage /> },
+    { path: '/dashboard/organizations', element: <OrganizationListPage /> },
+    { path: '/dashboard/organizations/new', element: <OrganizationOnboardingPage /> },
+    { path: '/dashboard/organizations/:organizationId', element: <OrganizationDashboardPage /> },
     { path: '/dashboard/queues', element: <QueueListPage /> },
+    { path: '/dashboard/queues/new', element: <CreateQueuePage /> },
     { path: '/dashboard/queues/active', element: <QueueListPage mode="active" /> },
     { path: '/dashboard/queues/join', element: <JoinQueuePage /> },
     { path: '/dashboard/queues/history', element: <QueueHistoryPage /> },

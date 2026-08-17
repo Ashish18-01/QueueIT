@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const { config, validateEnv } = require('../src/config/env');
 const { connectDatabase, disconnectDatabase } = require('../src/database/connection');
-const { User, Session, AuthToken, QueueEntry } = require('../src/models');
+const { User, Session, AuthToken, Organization, Queue, QueueEntry } = require('../src/models');
 const passwords = require('../src/services/passwordService');
 
 const ids = {
@@ -56,11 +56,15 @@ async function main() {
 
   const admin = await upsertUser({
     email: adminEmail,
-    name: 'QueueIt Test Admin',
+    name: process.env.LOCAL_TEST_ORGANIZER_NAME || 'QueueIt Test Organizer',
     password: adminPassword,
     roleNames: ['organization_admin'],
     tenant: ids,
   });
+  const organization = await Organization.findOneAndUpdate({ slug: process.env.LOCAL_TEST_ORGANIZATION_SLUG || 'queueit-test-organization' }, { $set: { name: process.env.LOCAL_TEST_ORGANIZATION_NAME || 'QueueIt Test Organization', slug: process.env.LOCAL_TEST_ORGANIZATION_SLUG || 'queueit-test-organization', ownerId: admin._id, adminIds: [admin._id], status: 'active' } }, { upsert: true, new: true, runValidators: true, setDefaultsOnInsert: true });
+  admin.organizationId = organization._id; await admin.save();
+  const queue = await Queue.findOneAndUpdate({ organizationId: organization._id, name: process.env.LOCAL_TEST_QUEUE_NAME || 'General Service Queue' }, { $set: { name: process.env.LOCAL_TEST_QUEUE_NAME || 'General Service Queue', organizationId: organization._id, branchId: ids.branchId, venueId: ids.venueId, averageServiceTimeMinutes: 5, maximumCapacity: 100, status: 'active', isActive: true, tokenPrefix: 'Q', createdBy: admin._id, updatedBy: admin._id } }, { upsert: true, new: true, runValidators: true, setDefaultsOnInsert: true });
+
   const customer = await upsertUser({
     email: customerEmail,
     name: 'QueueIt Test Customer',
@@ -72,6 +76,8 @@ async function main() {
   console.log(JSON.stringify({
     admin: { id: admin.id, email: admin.email, roleNames: admin.roleNames },
     customer: { id: customer.id, email: customer.email, roleNames: customer.roleNames },
+    organization: { id: organization.id, name: organization.name, slug: organization.slug },
+    queue: { id: queue.id, name: queue.name, status: queue.status },
     tenant: Object.fromEntries(Object.entries(ids).map(([key, value]) => [key, String(value)])),
   }, null, 2));
 }

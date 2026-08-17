@@ -1,18 +1,17 @@
 const { body, param, query, validationResult } = require('express-validator');
 const { ValidationError } = require('../errors');
 const { QUEUE_STATUSES, QUEUE_VISIBILITIES, TOKEN_STRATEGIES, QUEUE_CATEGORIES } = require('../constants/queueConstants');
-const objectId = (field) => body(field).isMongoId().withMessage(`${field} must be a valid id`);
 const validate = (req, _res, next) => { const errors = validationResult(req); if (!errors.isEmpty()) return next(new ValidationError('Validation failed', errors.array())); next(); };
 const fieldChains = (required = true) => {
   const opt = (chain) => (required ? chain : chain.optional({ values: 'undefined' }));
   return [
     opt(body('name')).trim().isLength({ min: 2, max: 120 }),
     opt(body('description')).trim().isLength({ max: 1000 }),
-    opt(objectId('organizationId')), opt(objectId('branchId')), opt(objectId('venueId')),
+    body('organizationId').optional().isMongoId(), body('branchId').optional().isMongoId(), body('venueId').optional().isMongoId(),
     body('counterId').optional().isMongoId(), body('queueTemplateId').optional().isMongoId(),
     body('category').optional().isIn(QUEUE_CATEGORIES), body('tokenPrefix').optional().trim().isLength({ min: 1, max: 8 }),
     body('tokenStrategy').optional().isIn(TOKEN_STRATEGIES),
-    opt(body('averageServiceTimeMinutes')).isInt({ min: 1, max: 1440 }), opt(body('maximumCapacity')).isInt({ min: 1, max: 100000 }),
+    body('averageServiceTimeMinutes').optional().isInt({ min: 1, max: 1440 }), body('maximumCapacity').optional().isInt({ min: 1, max: 100000 }),
     body('dailyCapacity').optional().isInt({ min: 1, max: 1000000 }),
     body('operatingHours').optional().isArray(), body('operatingHours.*.dayOfWeek').optional().isInt({ min: 0, max: 6 }),
     body('visibility').optional().isIn(QUEUE_VISIBILITIES), body('status').optional().isIn(QUEUE_STATUSES), body('priorityEnabled').optional().isBoolean(), body('isActive').optional().isBoolean(),
