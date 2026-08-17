@@ -2,6 +2,9 @@ import { apiClient } from './apiClient.js';
 
 const unwrap = (response) => response.data;
 export const businessApi = {
+  listOrganizations: () => apiClient.get('/organizations').then(unwrap),
+  getOrganizationDashboard: (id) => apiClient.get(`/organizations/${id}/dashboard`).then(unwrap),
+  createOrganization: (payload) => apiClient.post('/organizations', payload).then(unwrap),
   listQueues: (params) => apiClient.get('/queues', { params }).then(unwrap),
   getQueue: (id) => apiClient.get(`/queues/${id}`).then(unwrap),
   createQueue: (payload) => apiClient.post('/queues', payload).then(unwrap),

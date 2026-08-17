@@ -77,7 +77,7 @@ describe('authentication forms', () => {
     await user.type(screen.getByLabelText(/password/i), 'StrongerPass1!');
     await user.click(screen.getByRole('button', { name: /create account/i }));
 
-    await waitFor(() => expect(authApi.register).toHaveBeenCalledWith({ name: 'New User', email: 'new@example.com', password: 'StrongerPass1!' }));
+    await waitFor(() => expect(authApi.register).toHaveBeenCalledWith({ name: 'New User', email: 'new@example.com', accountType: 'customer', password: 'StrongerPass1!' }));
     await waitFor(() => expect(screen.getByTestId('location')).toHaveTextContent('/login'));
   });
 

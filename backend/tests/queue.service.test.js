@@ -9,7 +9,7 @@ jest.mock('../src/services/auditService', () => ({ record: jest.fn().mockResolve
 const repo = require('../src/repositories/queueRepository');
 const service = require('../src/services/queueService');
 
-const manager = { _id: '507f1f77bcf86cd799439011', roleNames: ['venue_manager'] };
+const manager = { _id: '507f1f77bcf86cd799439011', roleNames: ['venue_manager'], organizationId: '507f1f77bcf86cd799439013' };
 const req = { id: 'req_test', ip: '127.0.0.1', get: () => 'jest' };
 const base = { _id: '507f1f77bcf86cd799439012', id: '507f1f77bcf86cd799439012', name: 'Main', organizationId: '507f1f77bcf86cd799439013', branchId: '507f1f77bcf86cd799439014', venueId: '507f1f77bcf86cd799439015', status: 'draft', isActive: false };
 
