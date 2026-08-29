@@ -58,7 +58,7 @@ services:
       LOG_LEVEL: ${LOG_LEVEL:-info}
       LOG_TO_FILE: ${LOG_TO_FILE:-false}
       FEATURE_REGISTRATION_ENABLED: ${FEATURE_REGISTRATION_ENABLED:-true}
-      FEATURE_QUEUE_ENABLED: ${FEATURE_QUEUE_ENABLED:-false}
+      FEATURE_QUEUE_ENABLED: ${FEATURE_QUEUE_ENABLED:-true}
     depends_on:
       mongodb:
         condition: service_healthy

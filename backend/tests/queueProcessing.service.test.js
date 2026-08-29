@@ -37,6 +37,13 @@ describe('queue processing service', () => {
     await expect(service.completeService(entry._id, manager, req)).rejects.toThrow('Invalid queue entry transition');
   });
 
+  test('rejects an entry changed concurrently by another operator', async () => {
+    entryRepo.findNextWaiting.mockResolvedValue(entry);
+    entryRepo.update.mockResolvedValue(null);
+    await expect(service.callNext(queue.id, {}, manager, req)).rejects.toThrow('changed by another operator');
+    expect(entryRepo.update).toHaveBeenCalledWith(entry._id, expect.any(Object), expect.objectContaining({ status: 'called' }), 'waiting');
+  });
+
   test('starts and completes service with timestamps', async () => {
     entryRepo.findById.mockResolvedValue({ ...entry, status: 'called' });
     entryRepo.update.mockResolvedValueOnce({ ...entry, status: 'in_service' });

@@ -46,4 +46,11 @@ describe('queue service', () => {
   test('prevents non-manager queue creation', async () => {
     await expect(service.create(base, { _id: manager._id, roleNames: ['user'] }, req)).rejects.toThrow('Only venue managers');
   });
+
+  test('limits the customer queue directory to active public queues', async () => {
+    const customer = { _id: '507f1f77bcf86cd799439099', roleNames: ['user'] };
+    repo.findAll.mockResolvedValue({ items: [], meta: {} });
+    await service.list({ status: 'paused', visibility: 'internal' }, customer);
+    expect(repo.findAll).toHaveBeenCalledWith(expect.objectContaining({ status: 'active', visibility: 'public' }), expect.any(Object));
+  });
 });

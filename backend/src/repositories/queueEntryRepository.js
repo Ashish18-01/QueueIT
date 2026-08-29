@@ -23,4 +23,11 @@ exports.findActiveOrdered = (queueId) => QueueEntry.find({ queueId, status: { $i
 exports.averageCompletedWaitMs = async (queueId) => { const result = await QueueEntry.aggregate([{ $match: { queueId, status: 'completed', joinedAt: { $type: 'date' }, serviceStartedAt: { $type: 'date' }, deletedAt: null } }, { $project: { waitMs: { $subtract: ['$serviceStartedAt', '$joinedAt'] } } }, { $group: { _id: null, avg: { $avg: '$waitMs' } } }]); return result[0]?.avg || 0; };
 exports.findActiveByCustomer = (queueId, customerId) => QueueEntry.findOne({ queueId, customerId, status: { $in: ACTIVE_QUEUE_ENTRY_STATUSES }, deletedAt: null });
 exports.nextTokenNumber = async (queueId) => ((await QueueEntry.findOne({ queueId }).sort({ tokenNumber: -1 }).select('tokenNumber').lean())?.tokenNumber || 0) + 1;
-exports.update = (id, tenant, data) => QueueEntry.findOneAndUpdate({ _id: id, ...baseFilter(tenant) }, data, { new: true, runValidators: true });
+// `expectedStatus` makes lifecycle changes compare-and-set operations.  This is
+// important when two counter operators act on the same entry at once: only the
+// first update may win.
+exports.update = (id, tenant, data, expectedStatus) => QueueEntry.findOneAndUpdate({
+  _id: id,
+  ...baseFilter(tenant),
+  ...(expectedStatus && { status: Array.isArray(expectedStatus) ? { $in: expectedStatus } : expectedStatus }),
+}, data, { new: true, runValidators: true });
