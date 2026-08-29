@@ -48,6 +48,26 @@ describe('queue entry service', () => {
     await expect(service.join(queue.id, {}, user, req)).rejects.toThrow('capacity');
   });
 
+  test('does not expose other customers\' queue entries in the customer list', async () => {
+    entryRepo.findAll.mockResolvedValue({ items: [], meta: {} });
+    await service.list({ customerId: 'another-customer' }, user);
+    expect(entryRepo.findAll).toHaveBeenCalledWith(expect.objectContaining({ customerId: user._id }), expect.any(Object));
+  });
+
+  test('does not allow a customer to join an internal queue', async () => {
+    queueRepo.findById.mockResolvedValue({ ...queue, visibility: 'internal' });
+    await expect(service.join(queue.id, {}, user, req)).rejects.toThrow('not available for customer self-service');
+  });
+
+  test('retries a duplicate generated token', async () => {
+    queueRepo.findById.mockResolvedValue(queue);
+    entryRepo.findActiveByCustomer.mockResolvedValue(null);
+    entryRepo.countActive.mockResolvedValue(0);
+    entryRepo.nextTokenNumber.mockResolvedValueOnce(1).mockResolvedValueOnce(2);
+    entryRepo.create.mockRejectedValueOnce({ code: 11000 }).mockImplementationOnce(async (payload) => ({ ...payload, id: 'entry2' }));
+    await expect(service.join(queue.id, {}, user, req)).resolves.toMatchObject({ tokenNumber: 2, token: 'Q-0002' });
+  });
+
   test('lets a manager cancel an active entry', async () => {
     entryRepo.findById.mockResolvedValue({ _id: 'entry1', customerId: user._id, status: 'waiting', queueId: queue.id, organizationId: queue.organizationId, branchId: queue.branchId, venueId: queue.venueId });
     entryRepo.update.mockResolvedValue({ status: 'cancelled' });

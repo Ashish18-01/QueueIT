@@ -13,11 +13,17 @@ const activeStatuses = ACTIVE_QUEUE_ENTRY_STATUSES;
 const assertActor = (entry, user) => { if (String(entry.customerId) !== String(user._id) && !canManage(user)) throw new AuthorizationError('Queue entry ownership required'); };
 const tokenFor = (queue, number) => `${queue.tokenPrefix || 'Q'}-${String(number).padStart(4, '0')}`;
 
-exports.list = (query, user) => entryRepo.findAll(query, tenantFromUser(user, query));
+exports.list = (query, user) => {
+  // Customers may see their own tickets, never the customer list for a queue.
+  // Management roles keep the tenant-scoped operational view.
+  const customerQuery = canManage(user) ? query : { ...query, customerId: user._id };
+  return entryRepo.findAll(customerQuery, tenantFromUser(user, customerQuery));
+};
 exports.get = async (id, user) => { const entry = await entryRepo.findById(id, tenantFromUser(user)); if (!entry) throw new NotFoundError('Queue entry not found'); assertActor(entry, user); return entry; };
 exports.join = async (queueId, data, user, req) => {
   const queue = await queueRepo.findById(queueId, tenantFromUser(user, data));
   if (!queue) throw new NotFoundError('Queue not found');
+  if (queue.visibility && queue.visibility !== 'public' && !canManage(user)) throw new AuthorizationError('This queue is not available for customer self-service');
   if (!queue.isActive || ['closed', 'archived', 'paused'].includes(queue.status)) throw new ConflictError('Queue is not accepting new entries');
   const customerId = data.customerId || user._id;
   if (String(customerId) !== String(user._id) && !canManage(user)) throw new AuthorizationError('Cannot join another customer without queue management access');
@@ -26,7 +32,18 @@ exports.join = async (queueId, data, user, req) => {
   const tokenNumber = await entryRepo.nextTokenNumber(queue._id);
   const position = (await entryRepo.countActive(queue._id)) + 1;
   const estimatedWaitMinutes = Math.max(position - 1, 0) * queue.averageServiceTimeMinutes;
-  const entry = await entryRepo.create({ organizationId: queue.organizationId, branchId: queue.branchId, venueId: queue.venueId, queueId: queue._id, customerId, tokenNumber, token: tokenFor(queue, tokenNumber), position, estimatedWaitMinutes, estimatedServiceAt: new Date(Date.now() + estimatedWaitMinutes * 60000), metadata: data.metadata });
+  let entry;
+  // The unique queue/token index is the final authority under concurrent joins.
+  // Retry a conflicting generated token a few times instead of returning a 500.
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    const nextNumber = attempt ? await entryRepo.nextTokenNumber(queue._id) : tokenNumber;
+    try {
+      entry = await entryRepo.create({ organizationId: queue.organizationId, branchId: queue.branchId, venueId: queue.venueId, queueId: queue._id, customerId, tokenNumber: nextNumber, token: tokenFor(queue, nextNumber), position, estimatedWaitMinutes, estimatedServiceAt: new Date(Date.now() + estimatedWaitMinutes * 60000), metadata: data.metadata });
+      break;
+    } catch (error) {
+      if (error?.code !== 11000 || attempt === 2) throw error;
+    }
+  }
   await processing.recalculate(queue._id, queue);
   await audit.record('queueEntry.joined', { actor: user._id, target: entry.id, metadata: { queueId: queue.id, token: entry.token, requestId: req.id }, req });
   socket.broadcast(socket.EVENTS.CUSTOMER_JOINED, entry.toObject ? entry.toObject() : entry);

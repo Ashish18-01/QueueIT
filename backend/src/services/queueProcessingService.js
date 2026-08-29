@@ -48,7 +48,8 @@ const getQueue = async (queueId, user, data = {}) => { const queue = await queue
 const getEntry = async (id, user) => { const entry = await entryRepo.findById(id, tenantFromUser(user)); if (!entry) throw new NotFoundError('Queue entry not found'); return entry; };
 const transitionEntry = async (entry, status, user, req, fields = {}) => {
   assertTransition(entry, status);
-  const updated = await entryRepo.update(entry._id, tenantFromEntry(entry), { status, processedBy: user._id, ...fields });
+  const updated = await entryRepo.update(entry._id, tenantFromEntry(entry), { status, processedBy: user._id, ...fields }, entry.status);
+  if (!updated) throw new ConflictError('Queue entry was changed by another operator; refresh and try again');
   const queue = await getQueue(entry.queueId, user, entry);
   await recalculate(entry.queueId, queue);
   await audit.record(`queueEntry.${status}`, { actor: user._id, target: entry._id, metadata: { queueId: entry.queueId, requestId: req.id }, req });

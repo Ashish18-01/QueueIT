@@ -2,7 +2,9 @@ import axios from 'axios';
 import toast from 'react-hot-toast';
 import { clearStoredAuth, getStoredAuth, setStoredAuth } from './tokenStorage.js';
 
-export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
+// Backend routes are versioned.  Keep the development fallback aligned with
+// Docker's relative `/api/v1` route as well as the backend default.
+export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api/v1';
 export const apiClient = axios.create({ baseURL: API_BASE_URL, withCredentials: true, headers: { 'Content-Type': 'application/json' } });
 let refreshPromise;
 apiClient.interceptors.request.use((config)=>{ const { accessToken } = getStoredAuth(); if(accessToken) config.headers.Authorization = `Bearer ${accessToken}`; return config; });
