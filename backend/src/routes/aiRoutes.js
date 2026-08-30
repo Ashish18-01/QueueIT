@@ -1,0 +1,17 @@
+const express = require('express');
+const rateLimit = require('express-rate-limit');
+const controller = require('../controllers/aiController');
+const validators = require('../validators/aiValidators');
+const { authenticate, requirePermission } = require('../middlewares/auth');
+const asyncHandler = require('../utils/asyncHandler');
+const { config } = require('../config/env');
+const router = express.Router();
+const limiter = rateLimit({ windowMs: config.rateLimit.windowMs, max: config.ai.rateLimitMax, standardHeaders: true, legacyHeaders: false, message: { success: false, error: { code: 'AI_RATE_LIMITED', message: 'Too many assistant requests, please try again later.' } } });
+router.use(authenticate);
+router.post('/assistant', limiter, validators.ask, asyncHandler(controller.ask));
+router.get('/insights', requirePermission('organizations:read'), asyncHandler(controller.insights));
+router.get('/knowledge', requirePermission('organizations:read'), asyncHandler(controller.listDocuments));
+router.post('/knowledge', requirePermission('organizations:write'), validators.ingest, asyncHandler(controller.ingest));
+router.delete('/knowledge/:documentId', requirePermission('organizations:write'), validators.documentId, asyncHandler(controller.removeDocument));
+router.get('/metrics', requirePermission('organizations:read'), asyncHandler(controller.metrics));
+module.exports = router;

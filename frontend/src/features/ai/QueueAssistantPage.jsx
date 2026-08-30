@@ -1,0 +1,13 @@
+import { useState } from 'react';
+import toast from 'react-hot-toast';
+import { Button } from '../../components/ui/Button.jsx';
+import { Card } from '../../components/ui/Card.jsx';
+import { Textarea } from '../../components/ui/Textarea.jsx';
+import { businessApi } from '../../services/businessApi.js';
+
+export default function QueueAssistantPage() {
+  const [question, setQuestion] = useState('Which queue should I join?');
+  const [result, setResult] = useState(null); const [loading, setLoading] = useState(false);
+  const ask = async (event) => { event.preventDefault(); setLoading(true); try { const response = await businessApi.askQueueAssistant(question); setResult(response.data || response); } catch (error) { toast.error(error.response?.data?.error?.message || 'The queue assistant is unavailable. You can still browse and join queues normally.'); } finally { setLoading(false); } };
+  return <div className="grid gap-6 xl:grid-cols-[1.1fr_.9fr]"><Card><p className="text-xs font-bold uppercase tracking-widest text-indigo-600">Queue planning</p><h2 className="mt-2 text-2xl font-black">Find the right queue</h2><p className="mt-2 text-sm text-slate-500">Recommendations use live QueueIt queue status and verified organization knowledge. They never join or change a queue for you.</p><form className="mt-6 space-y-4" onSubmit={ask}><Textarea label="What do you need?" value={question} onChange={(event) => setQuestion(event.target.value)} maxLength={1000} rows={5}/><Button disabled={loading}>{loading ? 'Checking available queues…' : 'Get recommendation'}</Button></form></Card><Card><p className="text-xs font-bold uppercase tracking-widest text-indigo-600">Grounded result</p>{result ? <div className="mt-4 space-y-4"><h3 className="text-xl font-bold">{result.intent === 'queue_recommendation' ? 'Recommended queue' : 'Verified support answer'}</h3><p className="leading-7 text-slate-700 dark:text-slate-200">{result.answer}</p><div className="grid grid-cols-2 gap-3 text-sm"><div className="rounded-xl bg-slate-100 p-3 dark:bg-slate-800"><b>Estimated wait</b><br/>{result.estimatedWaitMinutes == null ? 'Not available' : `${result.estimatedWaitMinutes} min`}</div><div className="rounded-xl bg-slate-100 p-3 dark:bg-slate-800"><b>Confidence</b><br/>{Math.round((result.confidence || 0) * 100)}%</div></div><p className="text-xs text-slate-500">Method: {result.estimationMethod?.replaceAll('_', ' ') || 'verified knowledge'} · {result.sources?.length || 0} verified source(s)</p></div> : <p className="mt-4 text-sm text-slate-500">Ask about a service, a queue, operating rules, or how to join. If verified information is unavailable, the assistant will say so.</p>}</Card></div>;
+}

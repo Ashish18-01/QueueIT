@@ -16,6 +16,7 @@ import { OrganizationDashboardPage, OrganizationListPage, OrganizationOnboarding
 import { ProtectedRoute } from './ProtectedRoute.jsx';
 
 const AnalyticsDashboardPage = lazy(() => import('../features/analytics/AnalyticsDashboardPage.jsx'));
+const QueueAssistantPage = lazy(() => import('../features/ai/QueueAssistantPage.jsx'));
 const LazyAnalytics = () => <Suspense fallback={<Loader />}><AnalyticsDashboardPage /></Suspense>;
 
 export const router = createBrowserRouter([
@@ -42,6 +43,7 @@ export const router = createBrowserRouter([
     { path: '/dashboard/users', element: <UserManagementPage /> },
     { path: '/dashboard/roles', element: <RoleManagementPage /> },
     { path: '/dashboard/analytics', element: <LazyAnalytics /> },
+    { path: '/dashboard/assistant', element: <Suspense fallback={<Loader />}><QueueAssistantPage /></Suspense> },
     { path: '/dashboard/profile', element: <ProfilePage /> },
     { path: '/dashboard/settings', element: <ProfilePage /> },
     { path: '/dashboard/notifications', element: <NotificationHistoryPage /> },

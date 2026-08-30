@@ -18,4 +18,7 @@ export const businessApi = {
   recallEntry: (id, payload = {}) => apiClient.post(`/queue-entries/${id}/recall`, payload).then(unwrap),
   skipEntry: (id) => apiClient.post(`/queue-entries/${id}/skip`).then(unwrap),
   completeEntry: (id) => apiClient.post(`/queue-entries/${id}/complete-service`).then(unwrap),
+  askQueueAssistant: (question) => apiClient.post('/ai/assistant', { question }).then(unwrap),
+  getAiInsights: () => apiClient.get('/ai/insights').then(unwrap),
+  getAiMetrics: () => apiClient.get('/ai/metrics').then(unwrap),
 };

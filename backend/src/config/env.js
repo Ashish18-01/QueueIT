@@ -38,6 +38,16 @@ const config = {
   logging: { level: process.env.LOG_LEVEL || 'info', toFile: bool(process.env.LOG_TO_FILE, true), dir: process.env.LOG_DIR || 'logs' },
   email: { host: process.env.SMTP_HOST || '', port: num(process.env.SMTP_PORT, 587), user: process.env.SMTP_USER || '', password: process.env.SMTP_PASSWORD || '', from: process.env.SMTP_FROM || 'no-reply@queueit.local', secure: bool(process.env.SMTP_SECURE), startTls: bool(process.env.SMTP_STARTTLS, true), heloName: process.env.SMTP_HELO_NAME || 'queueit.local', timeoutMs: num(process.env.SMTP_TIMEOUT_MS, 10000), passwordResetUrl: process.env.PASSWORD_RESET_URL || 'http://localhost:3000/reset-password' },
   rateLimit: { windowMs: num(process.env.RATE_LIMIT_WINDOW_MS, 900000), max: num(process.env.RATE_LIMIT_MAX, 100) },
+  ai: {
+    enabled: bool(process.env.AI_ENABLED),
+    provider: process.env.AI_PROVIDER || 'disabled',
+    model: process.env.AI_MODEL || '',
+    maxOutputTokens: num(process.env.AI_MAX_OUTPUT_TOKENS, 400),
+    timeoutMs: num(process.env.AI_TIMEOUT_MS, 8000),
+    maxContextChars: num(process.env.AI_MAX_CONTEXT_CHARS, 6000),
+    rateLimitMax: num(process.env.AI_RATE_LIMIT_MAX, 20),
+    defaultServiceMinutes: num(process.env.AI_DEFAULT_SERVICE_MINUTES, 5),
+  },
   features: { registrationEnabled: bool(process.env.FEATURE_REGISTRATION_ENABLED, true), queueEnabled: bool(process.env.FEATURE_QUEUE_ENABLED) },
 };
 
